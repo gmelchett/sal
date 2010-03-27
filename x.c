@@ -1,14 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
+
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/XShm.h>
-#include <X11/extensions/shape.h>
+
 #include <X11/Xutil.h>
 #include <Imlib2.h>
-
-#include "x.h"
+#include "background.h"
 
 static Display *display;
 static int depth;
@@ -18,72 +17,6 @@ static int background_w, background_h;
 static int background_rs;
 static XShmSegmentInfo shm_img;
 static GC gc;
-
-
-
-static void create_background(void)
-{
-        unsigned char *bg;
-        int x, y, ypos;
-        Imlib_Image imlib_image;
-        Pixmap pixmap, mask;
-
-        bg = malloc(background_w * background_h * 4);
-
-        for (y = 0; y < background_h ; y++) {
-                ypos = y * 4 * background_w; //background_rs;
-
-                for (x = 0; x < background_w * 4 ; x += 4) {
-
-                        if ((y < 3 || x < (3 * 4) || x > (4*(background_w - 4)) ||
-                            y > (background_h - 4))) {
-                                bg[ypos + x + 0] = 0x0;
-                                bg[ypos + x + 1] = 0x0;
-                                bg[ypos + x + 2] = 0x0;
-                                bg[ypos + x + 3] = 0x0;
-                                continue;
-                        }
-
-                        if ((y == 3 && (x > 4 * 2 && x < 4 * background_w - 3 * 4)) ||
-                            (x == 3 * 4 &&(y > 2 && y < background_h - 3))) {
-
-                                bg[ypos + x + 0] = 0x0;
-                                bg[ypos + x + 1] = 0x0;
-                                bg[ypos + x + 2] = 0x0;
-                                bg[ypos + x + 3] = 0xff;
-                                continue;
-                        }
-
-                        if ((y == (background_h - 4) && (x > 4 * 2 && x < 4 * background_w - 3 * 4)) ||
-                            (x == (4 * (background_w - 4)) && (y > 2 && y < background_h - 3))) {
-                                bg[ypos + x + 0] = 0xC6;
-                                bg[ypos + x + 1] = 0xBA;
-                                bg[ypos + x + 2] = 0xAB;
-                                bg[ypos + x + 3] = 0xFF;
-                                continue;
-                        }
-                        bg[ypos + x + 0] = 0x87;
-                        bg[ypos + x + 1] = 0x5f;
-                        bg[ypos + x + 2] = 0x37;
-                        bg[ypos + x + 3] = 0xFF;
-                }
-	}
-
-
-        imlib_image = imlib_create_image_using_data(background_w, background_h, (DATA32*)bg);
-        imlib_context_set_image(imlib_image);
-        imlib_image_set_has_alpha(1);
-        imlib_render_pixmaps_for_whole_image(&pixmap, &mask);
-
-        XShapeCombineMask(display, win, ShapeBounding, 0, 0, mask, ShapeSet);
-        XSetWindowBackgroundPixmap(display, win, pixmap);
-
-        imlib_free_image_and_decache();
-
-        free(bg);
-
-}
-
 
 
 void x_draw(unsigned char *source,
@@ -225,7 +158,7 @@ int x_create_window(int width, int height)
         imlib_context_set_colormap(cm);
         imlib_context_set_drawable(win);
 
-        create_background();
+        background_set(display, win, background_w, background_h);
 
 	XRaiseWindow(display, win);
 	XMapWindow(display, win);

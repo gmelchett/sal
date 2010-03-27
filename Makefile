@@ -4,5 +4,5 @@ LDFLAGS= `imlib2-config --libs` -lX11 -lXext
 
 all: sll
 
-sll: x.o main.o
+sll: x.o main.o background.o
 	$(CC) $(LDFLAGS) $^ -o $@
