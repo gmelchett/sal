@@ -260,15 +260,16 @@ static int bubbles_nr;
 static Imlib_Image bubbles_image;
 static struct bubbles bubbles_loc[MAX_BUBBLES];
 static int bubbles_h, bubbles_w;
+static int bubbles_dh;
 
 static void bubble_random(struct bubbles *b, bool random_y)
 {
-        b->x = (float)( random() % bubbles_w);
+        b->x = (float)(random() % bubbles_w);
         if (random_y)
                 b->y = (float) (random() % bubbles_h);
         else
                 b->y = (float) bubbles_h + 5.0;
-        b->speed = (float)(random() % MAX_BUBBLE_SPEED) / (float)MAX_BUBBLE_SPEED;
+        b->speed = (float)((random() % MAX_BUBBLE_SPEED) + 1.0)/ (float)MAX_BUBBLE_SPEED;
 
 }
 
@@ -277,10 +278,14 @@ void bubbles_init(int bw, int bh)
         int i;
         bubbles_image = load_image("bubbles.png", 0, 0, False);
 
+        imlib_context_set_image(bubbles_image);
+
         bubbles_nr = random() % MAX_BUBBLES;
 
         bubbles_h = bh;
         bubbles_w = bw;
+        bubbles_dh = imlib_image_get_height() / BUBBLES_FRAMES;
+
         for (i = 0; i < bubbles_nr; i++)
                 bubble_random(&bubbles_loc[i], True);
 }
@@ -302,12 +307,12 @@ void bubbles_update(void)
                 }
 
 
-                x_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
-                       0, imlib_image_get_height() / BUBBLES_FRAMES * (int)bubbles_loc[i].y / bubbles_h * BUBBLES_FRAMES,
-                       imlib_image_get_width(),
-                       imlib_image_get_height() / BUBBLES_FRAMES,
-                       (int)bubbles_loc[i].x, (int)bubbles_loc[i].y,
-                       (bool)imlib_image_has_alpha());
+                x_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
+                             0, ((BUBBLES_FRAMES - 1) * (int)bubbles_loc[i].y / bubbles_h) * bubbles_dh,
+                             imlib_image_get_width(),
+                             bubbles_dh,
+                             (int)bubbles_loc[i].x, (int)bubbles_loc[i].y,
+                             128);
         }
 
 }

@@ -174,6 +174,80 @@ void x_draw(unsigned char *source,
 }
 
 
+void x_draw_blend(unsigned char *source,
+                  int sx, int sy, int sw, int sh,
+                  int tx, int ty,
+                  int alpha)
+{
+
+        int dw, di, dh, ds;
+        int w, h;
+        int th = background_h;
+        int tw = background_w;
+        int source_ypos, source_pos, target_ypos, target_pos;
+        unsigned char *target = (unsigned char *)image->data;
+
+        /* completely off the screen, don't bother drawing */
+        if ((ty < -(sh)) || (ty > th) || (tx > tw) || (tx < -(sw)))
+                return;
+
+        /* do clipping for top side */
+        ds = 0;
+        if (ty < 0)
+                ds = -(ty);
+
+        /* do clipping for bottom side */
+        dh = sh;
+        if ((ty + sh) > th)
+                dh = th - ty;
+
+        /* do clipping for right side */
+        dw = sw;
+        if (tx > (tw - sw))
+                dw = sw - (tx - (tw - sw));
+
+        /* do clipping for left side */
+        di = 0;
+        if (tx < 0)
+                di = -(tx);
+
+        for (h = ds; h < dh; h++) {
+                /* offset to beginning of current row */
+                target_ypos = (h + ty) * background_rs;
+                source_ypos = (h + sy) * sw * 4;
+
+                for (w = di; w < dw; w++) {
+                        target_pos = target_ypos + ((depth / 8) + 1) * (w + tx);
+                        source_pos = source_ypos + 4 * (w + sx);
+
+                        if(source[source_pos + 3] == 0)
+                                continue;
+
+                        target[target_pos] = (
+                                              (int)(256 - alpha) *
+                                              (int)target[target_pos] +
+                                              (int)alpha *
+                                              (int)source[source_pos]
+                                              ) >> 8;
+
+                        target[target_pos + 1] = (
+                                                  (int)(256 - alpha) *
+                                                  (int)target[target_pos + 1] +
+                                                  (int)alpha *
+                                                  (int)source[source_pos + 1]
+                                                  ) >> 8;
+
+                        target[target_pos + 2] = (
+                                                  (int)(256 - alpha) *
+                                                  (int)target[target_pos + 2] +
+                                                  (int)alpha *
+                                                  (int)source[source_pos + 2]
+                                                  ) >> 8;
+                }
+        }
+}
+
+
 void x_update(void)
 {
 
