@@ -14,12 +14,17 @@ int main(int argc, char **argv)
 
         x_create_window(300, 300);
 
-        x_update();
+        foreground_load(300 - 2*BORDER_WIDTH,
+                        300 - 2*BORDER_WIDTH);
+
+        bubbles_init(300 - 2*BORDER_WIDTH,
+                     300 - 2*BORDER_WIDTH);
 
         for(;;) {
-                foreground_load(300 - 2*BORDER_WIDTH,
-                                300 - 2*BORDER_WIDTH);
-                sleep(10);
+                foreground_update();
+                bubbles_update();
+                x_update();
+                usleep(10000);
         }
         x_close_window();
 

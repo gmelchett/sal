@@ -101,80 +101,76 @@ void x_draw(unsigned char *source,
             bool alpha_source)
 {
 
-    int dw, di, dh, ds;
-    int w, h;
-    int th = background_h;
-    int tw = background_w;
-    int source_ypos, source_pos, target_ypos, target_pos;
-    unsigned char *target = (unsigned char *)image->data;
+        int dw, di, dh, ds;
+        int w, h;
+        int th = background_h;
+        int tw = background_w;
+        int source_ypos, source_pos, target_ypos, target_pos;
+        unsigned char *target = (unsigned char *)image->data;
 
-    /* completely off the screen, don't bother drawing */
-    if ((ty < -(sh)) || (ty > th) || (tx > tw) || (tx < -(sw)))
-	return;
+        /* completely off the screen, don't bother drawing */
+        if ((ty < -(sh)) || (ty > th) || (tx > tw) || (tx < -(sw)))
+                return;
 
-    /* do clipping for top side */
-    ds = 0;
-    if (ty < 0)
-	ds = -(ty);
+        /* do clipping for top side */
+        ds = 0;
+        if (ty < 0)
+                ds = -(ty);
 
-    /* do clipping for bottom side */
-    dh = sh;
-    if ((ty + sh) > th)
-	dh = th - ty;
+        /* do clipping for bottom side */
+        dh = sh;
+        if ((ty + sh) > th)
+                dh = th - ty;
 
-    /* do clipping for right side */
-    dw = sw;
-    if (tx > (tw - sw))
-	dw = sw - (tx - (tw - sw));
+        /* do clipping for right side */
+        dw = sw;
+        if (tx > (tw - sw))
+                dw = sw - (tx - (tw - sw));
 
-    /* do clipping for left side */
-    di = 0;
-    if (tx < 0)
-	di = -(tx);
+        /* do clipping for left side */
+        di = 0;
+        if (tx < 0)
+                di = -(tx);
 
-    for (h = ds; h < dh; h++)
-    {
-	/* offset to beginning of current row */
-	target_ypos = (h + ty) * background_rs;
-	source_ypos = (h + sy) * sw * 4;
+        for (h = ds; h < dh; h++) {
+                /* offset to beginning of current row */
+                target_ypos = (h + ty) * background_rs;
+                source_ypos = (h + sy) * sw * 4;
 
-	for (w = di; w < dw; w++)
-	{
-                target_pos = target_ypos + ((depth / 8) + 1) * (w + tx);
-	    source_pos = source_ypos + 4 * (w + sx);
+                for (w = di; w < dw; w++) {
+                        target_pos = target_ypos + ((depth / 8) + 1) * (w + tx);
+                        source_pos = source_ypos + 4 * (w + sx);
 
-	    if (alpha_source)
-	    {
-		if(source[source_pos + 3]!=0)
-		{
-		    target[target_pos] = (
-			(int)(256 - source[source_pos + 3]) *
-			(int)target[target_pos] +
-			(int)source[source_pos + 3] *
-			(int)source[source_pos]
-			) >> 8;
+                        if (alpha_source) {
+                                if(source[source_pos + 3] != 0) {
+                                        target[target_pos] = (
+                                                              (int)(256 - source[source_pos + 3]) *
+                                                              (int)target[target_pos] +
+                                                              (int)source[source_pos + 3] *
+                                                              (int)source[source_pos]
+                                                              ) >> 8;
 
-		    target[target_pos + 1] = (
-			(int)(256 - source[source_pos + 3]) *
-			(int)target[target_pos + 1] +
-			(int)source[source_pos + 3] *
-			(int)source[source_pos + 1]
-			) >> 8;
+                                        target[target_pos + 1] = (
+                                                                  (int)(256 - source[source_pos + 3]) *
+                                                                  (int)target[target_pos + 1] +
+                                                                  (int)source[source_pos + 3] *
+                                                                  (int)source[source_pos + 1]
+                                                                  ) >> 8;
 
-		    target[target_pos + 2] = (
-			(int)(256 - source[source_pos + 3]) *
-			(int)target[target_pos + 2] +
-			(int)source[source_pos + 3] *
-			(int)source[source_pos + 2]
-			) >> 8;
-		}
-	    } else {
-		target[target_pos + 0] = source[source_pos + 0];
-		target[target_pos + 1] = source[source_pos + 1];
-		target[target_pos + 2] = source[source_pos + 2];
-	    }
-	}
-    }
+                                        target[target_pos + 2] = (
+                                                                  (int)(256 - source[source_pos + 3]) *
+                                                                  (int)target[target_pos + 2] +
+                                                                  (int)source[source_pos + 3] *
+                                                                  (int)source[source_pos + 2]
+                                                                  ) >> 8;
+                                }
+                        } else {
+                                target[target_pos + 0] = source[source_pos + 0];
+                                target[target_pos + 1] = source[source_pos + 1];
+                                target[target_pos + 2] = source[source_pos + 2];
+                        }
+                }
+        }
 }
 
 
