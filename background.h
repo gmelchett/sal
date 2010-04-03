@@ -1,14 +1,18 @@
 #ifndef BACKGROUND_H
 #define BACKGROUND_H
 
+#include <stdbool.h>
 
 
-void background_set(Display *display, Window win, int bw, int bh);
-void foreground_load(int bw, int bh);
+enum background_type {
+        BACKGROUND_WATER,
+        BACKGROUND_SHADE,
+        BACKGROUND_BLACK,
+};
 
-void bubbles_init(int bw, int bh);
-void bubbles_update(void);
+void background_init(enum background_type type, bool has_bottom);
 
-void fish_load(int bw, int bh, int scale);
-void fish_update(int bw, int bh);
+void background_update(void);
+
+
 #endif

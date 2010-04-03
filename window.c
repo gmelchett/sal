@@ -10,7 +10,8 @@
 #include <X11/Xutil.h>
 #include <Imlib2.h>
 
-#include "sll.h"
+#include "config.h"
+#include "sal.h"
 
 static Display *display;
 static int depth;
@@ -95,10 +96,10 @@ static void background_set(Display *display, Window win, int bw, int bh)
 
 }
 
-void x_draw(unsigned char *source,
-            int sx, int sy, int sw, int sh,
-            int tx, int ty,
-            bool alpha_source)
+void window_draw(unsigned char *source,
+                 int sx, int sy, int sw, int sh,
+                 int tx, int ty,
+                 bool alpha_source)
 {
 
         int dw, di, dh, ds;
@@ -174,10 +175,10 @@ void x_draw(unsigned char *source,
 }
 
 
-void x_draw_blend(unsigned char *source,
-                  int sx, int sy, int sw, int sh,
-                  int tx, int ty,
-                  int alpha)
+void window_draw_blend(unsigned char *source,
+                       int sx, int sy, int sw, int sh,
+                       int tx, int ty,
+                       int alpha)
 {
 
         int dw, di, dh, ds;
@@ -248,7 +249,7 @@ void x_draw_blend(unsigned char *source,
 }
 
 
-void x_update(void)
+void window_update(void)
 {
 
         XShmPutImage(display, win, gc, image, 0, 0,
@@ -260,13 +261,13 @@ void x_update(void)
 }
 
 
-void x_close_window(void)
+void window_close(void)
 {
 	XDestroyImage(image);
 	XCloseDisplay(display);
 }
 
-int x_create_window(int width, int height)
+int window_create(int width, int height)
 {
         Colormap cm;
         Visual *visual;
