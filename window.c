@@ -12,35 +12,38 @@
 
 #include "config.h"
 #include "sal.h"
+#include "aquarium.h"
 
-static Display *display;
-static int depth;
-static Window win;
-static XImage *image;
-static int background_w, background_h;
-static int background_rs;
-static XShmSegmentInfo shm_img;
-static GC gc;
+struct window {
+        Display *display;
+        int depth;
+        Window win;
+        XImage *image;
+        XShmSegmentInfo shm_img;
+        GC gc;
+        struct aquarium *aquarium;
+};
 
+static struct window window;
 
-static void background_set(Display *display, Window win, int bw, int bh)
+static void background_set(void)
 {
         unsigned char *bg;
         int x, y, ypos;
         Imlib_Image imlib_image;
         Pixmap pixmap, mask;
 
-        bg = malloc(bw * bh * 4);
+        bg = malloc(window.aquarium->window_w * window.aquarium->window_h * 4);
 
-        for (y = 0; y < bh ; y++) {
-                ypos = y * 4 * bw;
+        for (y = 0; y < window.aquarium->window_h ; y++) {
+                ypos = y * 4 * window.aquarium->window_w;
 
-                for (x = 0; x < bw * 4 ; x += 4) {
+                for (x = 0; x < window.aquarium->window_w * 4 ; x += 4) {
 
                         if ((y < (BORDER_WIDTH - 1) ||
                              x < ((BORDER_WIDTH - 1) * 4) ||
-                             x > (4 * (bw - BORDER_WIDTH)) ||
-                             y > (bh - BORDER_WIDTH))) {
+                             x > (4 * (window.aquarium->window_w - BORDER_WIDTH)) ||
+                             y > (window.aquarium->window_h - BORDER_WIDTH))) {
                                 bg[ypos + x + 0] = 0x0;
                                 bg[ypos + x + 1] = 0x0;
                                 bg[ypos + x + 2] = 0x0;
@@ -50,9 +53,9 @@ static void background_set(Display *display, Window win, int bw, int bh)
 
                         if ((y == (BORDER_WIDTH - 1) &&
                              (x > 4 * (BORDER_WIDTH - 2) &&
-                              x < BORDER_WIDTH * bw - (BORDER_WIDTH - 1) * 4)) ||
+                              x < BORDER_WIDTH * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
                             (x == (BORDER_WIDTH - 1) * 4 &&
-                             (y > (BORDER_WIDTH - 2) && y < bh - (BORDER_WIDTH - 1)))) {
+                             (y > (BORDER_WIDTH - 2) && y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
 
                                 bg[ypos + x + 0] = 0x0;
                                 bg[ypos + x + 1] = 0x0;
@@ -61,12 +64,12 @@ static void background_set(Display *display, Window win, int bw, int bh)
                                 continue;
                         }
 
-                        if ((y == (bh - BORDER_WIDTH) &&
+                        if ((y == (window.aquarium->window_h - BORDER_WIDTH) &&
                              (x > 4 * (BORDER_WIDTH - 2) &&
-                              x < 4 * bw - (BORDER_WIDTH - 1) * 4)) ||
-                            (x == (4 * (bw - BORDER_WIDTH)) &&
+                              x < 4 * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
+                            (x == (4 * (window.aquarium->window_w - BORDER_WIDTH)) &&
                              (y > (BORDER_WIDTH - 2) &&
-                              y < bh - (BORDER_WIDTH - 1)))) {
+                              y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
                                 bg[ypos + x + 0] = 0xC6;
                                 bg[ypos + x + 1] = 0xBA;
                                 bg[ypos + x + 2] = 0xAB;
@@ -81,13 +84,13 @@ static void background_set(Display *display, Window win, int bw, int bh)
 	}
 
 
-        imlib_image = imlib_create_image_using_data(bw, bh, (DATA32*)bg);
+        imlib_image = imlib_create_image_using_data(window.aquarium->window_w, window.aquarium->window_h, (DATA32*)bg);
         imlib_context_set_image(imlib_image);
         imlib_image_set_has_alpha(1);
         imlib_render_pixmaps_for_whole_image(&pixmap, &mask);
 
-        XShapeCombineMask(display, win, ShapeBounding, 0, 0, mask, ShapeSet);
-        XSetWindowBackgroundPixmap(display, win, pixmap);
+        XShapeCombineMask(window.display, window.win, ShapeBounding, 0, 0, mask, ShapeSet);
+        XSetWindowBackgroundPixmap(window.display, window.win, pixmap);
 
         imlib_free_pixmap_and_mask(pixmap);
         imlib_free_image_and_decache();
@@ -104,10 +107,10 @@ void window_draw(unsigned char *source,
 
         int dw, di, dh, ds;
         int w, h;
-        int th = background_h;
-        int tw = background_w;
+        int th = window.aquarium->window_h;
+        int tw = window.aquarium->window_w;
         int source_ypos, source_pos, target_ypos, target_pos;
-        unsigned char *target = (unsigned char *)image->data;
+        unsigned char *target = (unsigned char *)window.image->data;
 
         /* completely off the screen, don't bother drawing */
         if ((ty < -(sh)) || (ty > th) || (tx > tw) || (tx < -(sw)))
@@ -135,11 +138,11 @@ void window_draw(unsigned char *source,
 
         for (h = ds; h < dh; h++) {
                 /* offset to beginning of current row */
-                target_ypos = (h + ty) * background_rs;
+                target_ypos = (h + ty) * window.image->bytes_per_line;
                 source_ypos = (h + sy) * sw * 4;
 
                 for (w = di; w < dw; w++) {
-                        target_pos = target_ypos + ((depth / 8) + 1) * (w + tx);
+                        target_pos = target_ypos + window.depth * (w + tx);
                         source_pos = source_ypos + 4 * (w + sx);
 
                         if (alpha_source) {
@@ -183,10 +186,10 @@ void window_draw_blend(unsigned char *source,
 
         int dw, di, dh, ds;
         int w, h;
-        int th = background_h;
-        int tw = background_w;
+        int th = window.aquarium->window_h;
+        int tw = window.aquarium->window_w;
         int source_ypos, source_pos, target_ypos, target_pos;
-        unsigned char *target = (unsigned char *)image->data;
+        unsigned char *target = (unsigned char *)window.image->data;
 
         /* completely off the screen, don't bother drawing */
         if ((ty < -(sh)) || (ty > th) || (tx > tw) || (tx < -(sw)))
@@ -214,11 +217,11 @@ void window_draw_blend(unsigned char *source,
 
         for (h = ds; h < dh; h++) {
                 /* offset to beginning of current row */
-                target_ypos = (h + ty) * background_rs;
+                target_ypos = (h + ty) * window.image->bytes_per_line;
                 source_ypos = (h + sy) * sw * 4;
 
                 for (w = di; w < dw; w++) {
-                        target_pos = target_ypos + ((depth / 8) + 1) * (w + tx);
+                        target_pos = target_ypos + window.depth * (w + tx);
                         source_pos = source_ypos + 4 * (w + sx);
 
                         if(source[source_pos + 3] == 0)
@@ -252,66 +255,71 @@ void window_draw_blend(unsigned char *source,
 void window_update(void)
 {
 
-        XShmPutImage(display, win, gc, image, 0, 0,
+        XShmPutImage(window.display, window.win, window.gc, window.image, 0, 0,
                      BORDER_WIDTH, BORDER_WIDTH,
-                     background_w - BORDER_WIDTH,
-                     background_h - BORDER_WIDTH,
+                     window.aquarium->window_w - BORDER_WIDTH,
+                     window.aquarium->window_h - BORDER_WIDTH,
                      False);
-        XSync(display, False);
+        XSync(window.display, False);
 }
 
 
 void window_close(void)
 {
-	XDestroyImage(image);
-	XCloseDisplay(display);
+	XDestroyImage(window.image);
+	XCloseDisplay(window.display);
 }
 
-int window_create(int width, int height)
+int window_create(void)
 {
         Colormap cm;
         Visual *visual;
-	display = XOpenDisplay(NULL);
-        depth   = DefaultDepth(display,    DefaultScreen(display));
-        cm      = DefaultColormap(display, DefaultScreen(display));
-        visual  = DefaultVisual(display,   DefaultScreen(display));
-	gc      = DefaultGC(display,       DefaultScreen(display));
+
+        window.aquarium = aquarium_get();
+
+	window.display = XOpenDisplay(NULL);
+        window.depth   = (DefaultDepth(window.display,    DefaultScreen(window.display))/8) + 1;
+        cm             = DefaultColormap(window.display, DefaultScreen(window.display));
+        visual         = DefaultVisual(window.display,   DefaultScreen(window.display));
+	window.gc      = DefaultGC(window.display,       DefaultScreen(window.display));
 
 
-        win = XCreateSimpleWindow(display, RootWindow(display, DefaultScreen(display)),
-                                  0, 0, width, height, 0, 0, 0);
 
-        background_h = width;
-        background_w = height;
-        background_rs = width * (depth + 8) / 8;
+        window.win = XCreateSimpleWindow(window.display,
+                                         RootWindow(window.display, DefaultScreen(window.display)),
+                                         0, 0,
+                                         window.aquarium->window_w, window.aquarium->window_h,
+                                         0, 0, 0);
 
-	image = XShmCreateImage(display, visual, depth, ZPixmap, NULL,
-                                &shm_img, background_w, background_h);
+	window.image = XShmCreateImage(window.display, visual,
+                                       DefaultDepth(window.display, DefaultScreen(window.display)),
+                                       ZPixmap, NULL,
+                                       &window.shm_img, window.aquarium->window_w, window.aquarium->window_h);
 
-	shm_img.shmid = shmget(IPC_PRIVATE, image->bytes_per_line * image->height, IPC_CREAT|0600);
-	shm_img.readOnly = 0;
-	shm_img.shmaddr = shmat(shm_img.shmid, 0, 0);
-	image->data = shm_img.shmaddr;
-	XShmAttach(display, &shm_img);
-	XSync(display, False);
+	window.shm_img.shmid = shmget(IPC_PRIVATE, window.image->bytes_per_line * window.image->height, IPC_CREAT|0600);
+	window.shm_img.readOnly = 0;
+	window.shm_img.shmaddr = shmat(window.shm_img.shmid, 0, 0);
+	window.image->data = window.shm_img.shmaddr;
+	XShmAttach(window.display, &window.shm_img);
+	XSync(window.display, False);
 
-	shmctl(shm_img.shmid, IPC_RMID, 0);
+	shmctl(window.shm_img.shmid, IPC_RMID, 0);
 
-	XSelectInput(display, win, KeyPressMask | ButtonPressMask);
+	XSelectInput(window.display, window.win, KeyPressMask | ButtonPressMask);
 
         imlib_context_set_dither(1);
         imlib_set_cache_size(2048 * 1024);
-        imlib_context_set_display(display);
+        imlib_context_set_display(window.display);
         imlib_context_set_visual(visual);
         imlib_context_set_colormap(cm);
-        imlib_context_set_drawable(win);
+        imlib_context_set_drawable(window.win);
 
-        background_set(display, win, background_w, background_h);
+        background_set();
 
-	XRaiseWindow(display, win);
-	XMapWindow(display, win);
+	XRaiseWindow(window.display, window.win);
+	XMapWindow(window.display, window.win);
 
-	XFlush(display);
+	XFlush(window.display);
 
         return 0;
 }

@@ -16,5 +16,6 @@
 #define GREEN_END    40
 #define BLUE_END     80
 
+#define DEFAULT_WINDOW_SIZE 64
 
 #endif

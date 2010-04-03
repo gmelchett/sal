@@ -6,6 +6,7 @@
 struct aquarium
 {
         int w, h;
+        int window_w, window_h;
 };
 
 struct aquarium *aquarium_get(void);

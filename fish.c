@@ -177,6 +177,7 @@ void fish_init(int scale, int max_fish)
                 fish[i].travel = random() % 100;
 
                 fish[i].y = random() % aquarium->h;
+                fish[i].delay = 0;
         }
 
 }

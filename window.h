@@ -15,6 +15,6 @@ void window_draw_blend(unsigned char *source,
 
 void window_update(void);
 void window_close(void);
-int window_create(int width, int height);
+int window_create(void);
 
 #endif
