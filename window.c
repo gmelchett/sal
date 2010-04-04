@@ -26,79 +26,6 @@ struct window {
 
 static struct window window;
 
-static void background_set(void)
-{
-        unsigned char *bg;
-        int x, y, ypos;
-        Imlib_Image imlib_image;
-        Pixmap pixmap, mask;
-
-        bg = malloc(window.aquarium->window_w * window.aquarium->window_h * 4);
-
-        for (y = 0; y < window.aquarium->window_h ; y++) {
-                ypos = y * 4 * window.aquarium->window_w;
-
-                for (x = 0; x < window.aquarium->window_w * 4 ; x += 4) {
-
-                        if ((y < (BORDER_WIDTH - 1) ||
-                             x < ((BORDER_WIDTH - 1) * 4) ||
-                             x > (4 * (window.aquarium->window_w - BORDER_WIDTH)) ||
-                             y > (window.aquarium->window_h - BORDER_WIDTH))) {
-                                bg[ypos + x + 0] = 0x0;
-                                bg[ypos + x + 1] = 0x0;
-                                bg[ypos + x + 2] = 0x0;
-                                bg[ypos + x + 3] = 0x0;
-                                continue;
-                        }
-
-                        if ((y == (BORDER_WIDTH - 1) &&
-                             (x > 4 * (BORDER_WIDTH - 2) &&
-                              x < BORDER_WIDTH * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
-                            (x == (BORDER_WIDTH - 1) * 4 &&
-                             (y > (BORDER_WIDTH - 2) && y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
-
-                                bg[ypos + x + 0] = 0x0;
-                                bg[ypos + x + 1] = 0x0;
-                                bg[ypos + x + 2] = 0x0;
-                                bg[ypos + x + 3] = 0xff;
-                                continue;
-                        }
-
-                        if ((y == (window.aquarium->window_h - BORDER_WIDTH) &&
-                             (x > 4 * (BORDER_WIDTH - 2) &&
-                              x < 4 * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
-                            (x == (4 * (window.aquarium->window_w - BORDER_WIDTH)) &&
-                             (y > (BORDER_WIDTH - 2) &&
-                              y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
-                                bg[ypos + x + 0] = 0xC6;
-                                bg[ypos + x + 1] = 0xBA;
-                                bg[ypos + x + 2] = 0xAB;
-                                bg[ypos + x + 3] = 0xFF;
-                                continue;
-                        }
-                        bg[ypos + x + 0] = 0x87;
-                        bg[ypos + x + 1] = 0x5f;
-                        bg[ypos + x + 2] = 0x37;
-                        bg[ypos + x + 3] = 0xFF;
-                }
-	}
-
-
-        imlib_image = imlib_create_image_using_data(window.aquarium->window_w, window.aquarium->window_h, (DATA32*)bg);
-        imlib_context_set_image(imlib_image);
-        imlib_image_set_has_alpha(1);
-        imlib_render_pixmaps_for_whole_image(&pixmap, &mask);
-
-        XShapeCombineMask(window.display, window.win, ShapeBounding, 0, 0, mask, ShapeSet);
-        XSetWindowBackgroundPixmap(window.display, window.win, pixmap);
-
-        imlib_free_pixmap_and_mask(pixmap);
-        imlib_free_image_and_decache();
-
-        free(bg);
-
-}
-
 void window_draw(unsigned char *source,
                  int sx, int sy, int sw, int sh,
                  int tx, int ty,
@@ -257,8 +184,8 @@ void window_update(void)
 
         XShmPutImage(window.display, window.win, window.gc, window.image, 0, 0,
                      BORDER_WIDTH, BORDER_WIDTH,
-                     window.aquarium->window_w - BORDER_WIDTH,
-                     window.aquarium->window_h - BORDER_WIDTH,
+                     window.aquarium->w,
+                     window.aquarium->h,
                      False);
         XSync(window.display, False);
 }
@@ -269,6 +196,80 @@ void window_close(void)
 	XDestroyImage(window.image);
 	XCloseDisplay(window.display);
 }
+
+static void background_set(void)
+{
+        unsigned char *bg;
+        int x, y, ypos;
+        Imlib_Image imlib_image;
+        Pixmap pixmap, mask;
+
+        bg = malloc(window.aquarium->window_w * window.aquarium->window_h * 4);
+
+        for (y = 0; y < window.aquarium->window_h ; y++) {
+                ypos = y * 4 * window.aquarium->window_w;
+
+                for (x = 0; x < window.aquarium->window_w * 4 ; x += 4) {
+
+                        if ((y < (BORDER_WIDTH - 1) ||
+                             x < ((BORDER_WIDTH - 1) * 4) ||
+                             x > (4 * (window.aquarium->window_w - BORDER_WIDTH)) ||
+                             y > (window.aquarium->window_h - BORDER_WIDTH))) {
+                                bg[ypos + x + 0] = 0x0;
+                                bg[ypos + x + 1] = 0x0;
+                                bg[ypos + x + 2] = 0x0;
+                                bg[ypos + x + 3] = 0x0;
+                                continue;
+                        }
+
+                        if ((y == (BORDER_WIDTH - 1) &&
+                             (x > 4 * (BORDER_WIDTH - 2) &&
+                              x < BORDER_WIDTH * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
+                            (x == (BORDER_WIDTH - 1) * 4 &&
+                             (y > (BORDER_WIDTH - 2) && y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
+
+                                bg[ypos + x + 0] = 0x0;
+                                bg[ypos + x + 1] = 0x0;
+                                bg[ypos + x + 2] = 0x0;
+                                bg[ypos + x + 3] = 0xff;
+                                continue;
+                        }
+
+                        if ((y == (window.aquarium->window_h - BORDER_WIDTH) &&
+                             (x > 4 * (BORDER_WIDTH - 2) &&
+                              x < 4 * window.aquarium->window_w - (BORDER_WIDTH - 1) * 4)) ||
+                            (x == (4 * (window.aquarium->window_w - BORDER_WIDTH)) &&
+                             (y > (BORDER_WIDTH - 2) &&
+                              y < window.aquarium->window_h - (BORDER_WIDTH - 1)))) {
+                                bg[ypos + x + 0] = 0xC6;
+                                bg[ypos + x + 1] = 0xBA;
+                                bg[ypos + x + 2] = 0xAB;
+                                bg[ypos + x + 3] = 0xFF;
+                                continue;
+                        }
+                        bg[ypos + x + 0] = 0x87;
+                        bg[ypos + x + 1] = 0x5f;
+                        bg[ypos + x + 2] = 0x37;
+                        bg[ypos + x + 3] = 0xFF;
+                }
+	}
+
+
+        imlib_image = imlib_create_image_using_data(window.aquarium->window_w, window.aquarium->window_h, (DATA32*)bg);
+        imlib_context_set_image(imlib_image);
+        imlib_image_set_has_alpha(1);
+        imlib_render_pixmaps_for_whole_image(&pixmap, &mask);
+
+        XShapeCombineMask(window.display, window.win, ShapeBounding, 0, 0, mask, ShapeSet);
+        XSetWindowBackgroundPixmap(window.display, window.win, pixmap);
+
+        imlib_free_pixmap_and_mask(pixmap);
+        imlib_free_image_and_decache();
+
+        free(bg);
+
+}
+
 
 int window_create(void)
 {
