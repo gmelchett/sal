@@ -136,12 +136,16 @@ static void load_fish(int type, int scale)
 
 }
 
-void fish_init(int scale, int max_fish)
+void fish_init(void)
 {
         int i;
-        num_fish = (random() % max_fish) + 1;
 
         aquarium = aquarium_get();
+
+        if(aquarium->random_fish > -1)
+                num_fish = (random() % aquarium->random_fish) + 1;
+        else
+                num_fish = aquarium->num_fish;
 
 
         for (i = 0; i < NUMOFFISHTYPES; i++)
@@ -158,7 +162,7 @@ void fish_init(int scale, int max_fish)
 
                 fish[i].animation = &fish_animation[fish[i].type];
 
-                load_fish(fish[i].type, scale);
+                load_fish(fish[i].type, aquarium->fish_scale);
 
                 imlib_context_set_image(fish_image[fish[i].type].image[0]);
 

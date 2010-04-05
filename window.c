@@ -279,7 +279,7 @@ int window_create(void)
         window.aquarium = aquarium_get();
 
 	window.display = XOpenDisplay(NULL);
-        window.depth   = (DefaultDepth(window.display,    DefaultScreen(window.display))/8) + 1;
+        window.depth   = (DefaultDepth(window.display,   DefaultScreen(window.display))/8) + 1;
         cm             = DefaultColormap(window.display, DefaultScreen(window.display));
         visual         = DefaultVisual(window.display,   DefaultScreen(window.display));
 	window.gc      = DefaultGC(window.display,       DefaultScreen(window.display));

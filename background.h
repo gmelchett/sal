@@ -4,13 +4,15 @@
 #include <stdbool.h>
 
 
+
 enum background_type {
-        BACKGROUND_WATER,
+        BACKGROUND_WATER = 0,
         BACKGROUND_SHADE,
         BACKGROUND_BLACK,
+        BACKGROUND_TYPE_END
 };
 
-void background_init(enum background_type type, bool has_bottom);
+void background_init(void);
 
 void background_update(void);
 

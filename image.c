@@ -31,7 +31,7 @@ static Imlib_Image image_load_core(char *fname, int *sw, int *sh, enum scale sca
         if(scale != NO_SCALE) {
 
                 if(scale == RANDOM_RESCALE)
-                        size = random() % 180 + 20;
+                        size = (random() % 100) + 50;
                 if(scale == RELATIVE)
                         size = relative;
 

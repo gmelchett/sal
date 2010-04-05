@@ -47,13 +47,12 @@ static char *bottoms[] = {
         NULL};
 
 
-static void background_create(enum background_type type)
+static void background_create(void)
 {
         unsigned char *buff;
 
-        if(type == BACKGROUND_WATER) {
+        if(aquarium->background_type == BACKGROUND_WATER) {
                 bg = image_load_scale("water.png", aquarium->w, aquarium->h);
-
                 return;
         }
 
@@ -62,7 +61,7 @@ static void background_create(enum background_type type)
         imlib_image_set_has_alpha(0);
         buff = (unsigned char *)imlib_image_get_data();
 
-        if (type == BACKGROUND_SHADE) {
+        if (aquarium->background_type == BACKGROUND_SHADE) {
 
                 int x, y, t;
                 float d1, d2, d3;
@@ -80,7 +79,7 @@ static void background_create(enum background_type type)
                         }
                 }
         }
-        if (type == BACKGROUND_BLACK)
+        if (aquarium->background_type == BACKGROUND_BLACK)
                 memset(buff, 0, aquarium->w * aquarium->h * 4);
 
 
@@ -101,7 +100,7 @@ static int bottom_create(void)
         bottom = image_load_random(bottoms[random() % num_b], &sw, &sh);
 
         start_x = random() % imlib_image_get_width();
-        end_y = random() % (imlib_image_get_height() - imlib_image_get_height() / 5);
+        end_y = random() % (imlib_image_get_height() - imlib_image_get_height() / 3);
 
         imlib_context_set_image(bg);
 
@@ -191,18 +190,19 @@ static void bottom_animals_and_plants_create(int sand_height)
 }
 
 
-void background_init(enum background_type type, bool has_bottom)
+void background_init(void)
 {
-        int sand_height = 0;
+        int sand_height;
 
         aquarium = aquarium_get();
 
-        background_create(type);
+        background_create();
 
-        if(has_bottom)
+        if(!aquarium->no_bottom) {
                 sand_height = bottom_create();
-        if(sand_height)
-                bottom_animals_and_plants_create(sand_height);
+                if(sand_height && !aquarium->no_bottom_animals)
+                        bottom_animals_and_plants_create(sand_height);
+        }
 
 }
 
