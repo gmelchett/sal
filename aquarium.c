@@ -1,9 +1,12 @@
+
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <getopt.h>
+
 
 #include "config.h"
 #include "sal.h"
@@ -27,115 +30,187 @@ static void aquarium_init(void)
         aquarium.h = aquarium.window_h - 2 * BORDER_WIDTH;
 }
 
+
+
+/* getopt is ok, but with lots of options it requires too much doublicated code */
+#define MAX_ARG_LEN 20
+
+struct aquarium_option {
+        char name[MAX_ARG_LEN];
+        bool has_arg;
+        int *data;
+        int std;
+        void (*func_alt)(char *opt);
+        int min;
+        int max;
+};
+
+
+static void show_help(char *opt)
+{
+        printf("Show help\n");
+        exit(0);
+}
+
+
+
+
+static struct aquarium_option a_opts[] = {
+        /* Window width */
+        {
+                .name     = "-wi",
+                .has_arg  = true,
+                .data     = &aquarium.window_w,
+                .std      = DEFAULT_WINDOW_SIZE,
+                .min      = 20,
+                .max      = 3000,
+        },
+        /* Window height */
+        {
+                .name     = "-he",
+                .has_arg  = true,
+                .data     = &aquarium.window_h,
+                .std      = DEFAULT_WINDOW_SIZE,
+                .min      = 20,
+                .max      = 3000,
+        },
+
+         /* No bottom */
+        {
+                .name     = "-nb",
+                .data     = &aquarium.no_bottom,
+        },
+         /* No bottom animals */
+        {
+                .name     = "-na",
+                .data     = &aquarium.no_bottom_animals,
+        },
+        /* Background type */
+        {
+                .name     = "-bg",
+                .has_arg  = true,
+                .data     = &aquarium.background_type,
+                .std      = BACKGROUND_SHADE,
+                .min      = 0,
+                .max      = BACKGROUND_TYPE_END,
+        },
+        /* Random fish max */
+        {
+                .name     = "-rf",
+                .has_arg  = true,
+                .data     = &aquarium.random_fish,
+                .std      = 15,
+                .min      = 0,
+                .max      = 1000,
+        },
+        /* Fixed fish max */
+        {
+                .name     = "-nf",
+                .has_arg  = true,
+                .data     = &aquarium.num_fish,
+                .std      = -1,
+                .min      = 0,
+                .max      = 1000,
+        },
+        {
+                .name     = "-sc",
+                .has_arg  = true,
+                .data     = &aquarium.fish_scale,
+                .std      = 50,
+                .min      = 10,
+                .max      = 400,
+        },
+        {
+                .name     = "-help",
+                .func_alt = show_help,
+        },
+
+        {
+                .name     = "",
+        },
+
+#if 0
+        {
+                .name     = "",
+                .has_arg  = ,
+                .data     = ,
+                .std      = ,
+                .func_alt = ,
+                .min      = ,
+                .max      = ,
+        },
+#endif
+
+};
+
+
 static void parse_options(int argc, char **argv)
 {
-        int ch;
-        int l, d1, d2;
 
-        aquarium.window_w = DEFAULT_WINDOW_SIZE;
-        aquarium.window_h = DEFAULT_WINDOW_SIZE;
+        int i, j, a_opts_len  = 0;
 
-        aquarium.background_type = BACKGROUND_SHADE;
-        aquarium.random_fish = 15;
-        aquarium.fish_scale = 50;
+        for (a_opts_len = 0; strnlen(a_opts[a_opts_len].name, MAX_ARG_LEN) != 0; a_opts_len++) {
+                if(a_opts[a_opts_len].data != NULL)
+                        *a_opts[a_opts_len].data = a_opts[a_opts_len].std;
+        }
 
-        struct option long_opts[] = {
 
-                {"wi",     true,  NULL, 0x01},
-                {"nb",     false, NULL, 0x02},
-                {"na",     false, NULL, 0x03},
-                {"bg",     true,  NULL, 0x04},
-                {"rf",     true,  NULL, 0x05},
-                {"nf",     true,  NULL, 0x06},
-                {"sc",     true,  NULL, 0x07},
-                {"help",   false, NULL, 0xff},
-                {0,        false, NULL, 0x00}
-        };
 #if 1
         {
-                int i,j;
-                for(i = 0; long_opts[i].val != 0;i++)
-                        for(j = 0; long_opts[j].val != 0; j++)
-                                if (long_opts[i].val == long_opts[j].val && i != j)
+                for(i = 0; i < a_opts_len; i++)
+                        for(j = 0; j < a_opts_len; j++)
+                                if (!strcmp(a_opts[i].name, a_opts[j].name) && i != j)
                                         printf("Warning: both %s and %s is %d\n",
-                                               long_opts[j].name, long_opts[i].name,
-                                               long_opts[i].val);
+                                               a_opts[i].name, a_opts[j].name, i);
         }
 #endif
 
-        while ((ch = getopt_long_only(argc, argv, "", long_opts, NULL)) != -1) {
-                switch(ch) {
-                case 0x00:
-                        break;
-                case 0x01: /* wi */
-                        l = sscanf(optarg, "%dx%d", &d1, &d2);
-                        if(l != 2) {
-                                printf("%s: syntax error. -wi WxH, example: -wi 100x100\n", argv[0]);
-                                exit(-1);
-                        }
-                        if(d1 < 32 || d2 < 32 || d1 > 3000 || d2 > 3000) {
-                                printf("%s: -wi, window size is out of range!\n", argv[0]);
-                                exit(-2);
-                        }
-                        aquarium.window_w = d1;
-                        aquarium.window_h = d2;
 
-                        break;
-                case 0x02: /* nobottom */
-                        aquarium.no_bottom = true;
-                        break;
-                case 0x03: /* nobottomanimals */
-                        aquarium.no_bottom_animals = true;
-                        break;
-                case 0x04: /* bg */
-                        l = strtol(optarg, (char **) NULL, 10);
-                        if(l < 0 || l >= BACKGROUND_TYPE_END) {
-                                printf("%s: -bg out of range (min:0, max:%d)\n", argv[0], BACKGROUND_TYPE_END);
-                                exit(-1);
-                        } else {
-                                aquarium.background_type = l;
+        for (i = 1; i < argc; i++) {
+
+                for (j = 0; j < a_opts_len; j++) {
+                        if(!strncmp(a_opts[j].name, argv[i], MAX_ARG_LEN)) {
+                                if(a_opts[j].has_arg) {
+                                        int val;
+                                        if((i + 1) == argc) {
+                                                printf("Argument %s requires option.\n",
+                                                       a_opts[j].name);
+                                                exit(-1);
+                                        }
+
+                                        if (a_opts[j].func_alt == NULL) {
+                                                val = strtol(argv[i + 1], (char **) NULL, 10);
+
+
+                                                if (val < a_opts[j].min || val >= a_opts[j].max) {
+                                                        printf("Argument %s options out of range. Got %d min %d, max %d\n",
+                                                               a_opts[j].name, val, a_opts[j].min, a_opts[j].max - 1);
+                                                        exit(-1);
+                                                }
+                                                if (a_opts[j].data != NULL)
+                                                        *a_opts[j].data = val;
+                                        } else {
+                                                a_opts[j].func_alt(argv[i+1]);
+                                        }
+                                        i++;
+
+                                } else {
+                                        if (a_opts[j].data != NULL)
+                                                *a_opts[j].data = !a_opts[j].std;
+                                }
+
+                                break;
                         }
-                        break;
-                case 0x05: /* rf - max random number of fish */
-                        l = strtol(optarg, (char **) NULL, 10);
-                        if(l < 0 || l >= 1000) {
-                                printf("%s: -rf out of range!\n", argv[0]);
-                                exit(-1);
-                        } else {
-                                aquarium.random_fish = l;
-                        }
-                        break;
-                case 0x06: /* nf - fixed number of fish */
-                        l = strtol(optarg, (char **) NULL, 10);
-                        if(l < 0 || l >= 1000) {
-                                printf("%s: -nf out of range!\n", argv[0]);
-                                exit(-1);
-                        } else {
-                                aquarium.random_fish = -1;
-                                aquarium.num_fish = l;
-                        }
-                        break;
-                case 0x07: /* sc - fish scale */
-                        l = strtol(optarg, (char **) NULL, 10);
-                        if(l < 0 || l >= 1000) {
-                                printf("%s: -sc out of range!\n", argv[0]);
-                                exit(-1);
-                        } else {
-                                aquarium.fish_scale = l;
-                        }
-                        break;
-                case 0xff: /* help */
-                        printf("help\n");
-                        exit(0);
-                        break;
-                default:
-                        printf("%s: Unknown argument!\n", argv[0]);
-                        exit(-1);
-                        break;
                 }
+                if (j == a_opts_len) {
+                        printf("Unknown argument %s\n", argv[i]);
+                        exit(-1);
+                }
+
         }
 
 }
+
 
 int main(int argc, char **argv)
 {
