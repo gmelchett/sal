@@ -17,7 +17,7 @@ struct bubble {
         int h;
         int nr;
         Imlib_Image image;
-        struct bubbles loc[MAX_BUBBLES];
+        struct bubbles *loc;
 };
 
 static struct aquarium *aquarium;
@@ -75,7 +75,12 @@ void bubble_init(void)
 
         imlib_context_set_image(bubble.image);
 
-        bubble.nr = random() % MAX_BUBBLES;
+        if (aquarium->num_bubbles > -1)
+                bubble.nr = aquarium->num_bubbles;
+        else
+                bubble.nr = random() % aquarium->random_bubbles + 1;
+
+        bubble.loc = malloc(sizeof(struct bubbles) * bubble.nr);
 
         bubble.h = imlib_image_get_height() / BUBBLES_FRAMES;
 

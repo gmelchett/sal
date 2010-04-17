@@ -12,9 +12,12 @@ struct aquarium
         int fish_scale;
         int num_fish;
         int random_fish;
-        bool no_bottom;
-        bool no_bottom_animals;
-        enum background_type background_type;
+        int num_bubbles;
+        int random_bubbles;
+        int no_bottom;
+        int no_bottom_animals;
+        int background_type;
+        int fps;
 };
 
 struct aquarium *aquarium_get(void);

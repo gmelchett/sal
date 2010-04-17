@@ -53,8 +53,6 @@ static void show_help(char *opt)
 }
 
 
-
-
 static struct aquarium_option a_opts[] = {
         /* Window width */
         {
@@ -74,7 +72,6 @@ static struct aquarium_option a_opts[] = {
                 .min      = 20,
                 .max      = 3000,
         },
-
          /* No bottom */
         {
                 .name     = "-nb",
@@ -112,6 +109,7 @@ static struct aquarium_option a_opts[] = {
                 .min      = 0,
                 .max      = 1000,
         },
+        /* Fish scale */
         {
                 .name     = "-sc",
                 .has_arg  = true,
@@ -120,11 +118,47 @@ static struct aquarium_option a_opts[] = {
                 .min      = 10,
                 .max      = 400,
         },
+
+
+
+        /* Random bubble max */
+        {
+                .name     = "-ru",
+                .has_arg  = true,
+                .data     = &aquarium.random_bubbles,
+                .std      = 15,
+                .min      = 0,
+                .max      = 1000,
+        },
+        /* Fixed bubble max */
+        {
+                .name     = "-nu",
+                .has_arg  = true,
+                .data     = &aquarium.num_bubbles,
+                .std      = -1,
+                .min      = 0,
+                .max      = 1000,
+        },
+
+
+        /* Frames per second */
+        {
+                .name     = "-fps",
+                .has_arg  = true,
+                .data     = &aquarium.fps,
+                .std      = 20,
+                .min      = 1,
+                .max      = 200,
+        },
+
+
+        /* Help text */
         {
                 .name     = "-help",
                 .func_alt = show_help,
         },
 
+        /* Termination */
         {
                 .name     = "",
         },
@@ -230,7 +264,8 @@ int main(int argc, char **argv)
                 fish_update();
                 bubble_update();
                 window_update();
-                usleep(50000);
+                /* Not really fps, but close enough */
+                usleep(1000000/aquarium.fps);
         }
 
         window_close();

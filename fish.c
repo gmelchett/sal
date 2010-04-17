@@ -142,10 +142,12 @@ void fish_init(void)
 
         aquarium = aquarium_get();
 
-        if(aquarium->random_fish > -1)
-                num_fish = (random() % aquarium->random_fish) + 1;
-        else
+        if(aquarium->num_fish > -1)
                 num_fish = aquarium->num_fish;
+        else
+                num_fish = (random() % aquarium->random_fish) + 1;
+
+
 
 
         for (i = 0; i < NUMOFFISHTYPES; i++)
