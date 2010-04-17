@@ -275,6 +275,8 @@ int window_create(void)
 {
         Colormap cm;
         Visual *visual;
+        static const char *window_title = "Sherman's Aquarium";
+        XTextProperty name;
 
         window.aquarium = aquarium_get();
 
@@ -306,7 +308,10 @@ int window_create(void)
 
 	shmctl(window.shm_img.shmid, IPC_RMID, 0);
 
-	XSelectInput(window.display, window.win, KeyPressMask | ButtonPressMask);
+	XSelectInput(window.display, window.win,
+                     KeyPressMask | ButtonPressMask |
+                     ExposureMask | ButtonReleaseMask |
+                     EnterWindowMask | LeaveWindowMask);
 
         imlib_context_set_dither(1);
         imlib_set_cache_size(2048 * 1024);
@@ -314,6 +319,10 @@ int window_create(void)
         imlib_context_set_visual(visual);
         imlib_context_set_colormap(cm);
         imlib_context_set_drawable(window.win);
+
+        if (XStringListToTextProperty((char **)&window_title, 1, &name) != 0)
+                XSetWMName(window.display, window.win, &name);
+
 
         background_set();
 
