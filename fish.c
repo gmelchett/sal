@@ -52,7 +52,6 @@ struct fish {
     int w, h;
     struct fish_animation *animation;
     float speed_mul;
-    float fast_frame_change;
     int is_dead;			/* Is the fish alive? I.E, eaten prey or punched blowfish? */
 };
 
@@ -147,9 +146,6 @@ void fish_init(void)
         else
                 num_fish = (random() % aquarium->random_fish) + 1;
 
-
-
-
         for (i = 0; i < NUMOFFISHTYPES; i++)
                 fish_image[i].loaded = false;
 
@@ -176,7 +172,6 @@ void fish_init(void)
                 fish[i].tx = (random() % aquarium->w * 2) - aquarium->w / 2;
                 fish[i].speed_mul =  1.0 + (float)((random() % 30) - 15)/ 100.0;
 
-                fish[i].fast_frame_change = 1.0;
                 fish[i].is_dead = false;
 
                 fish[i].updown = 0;
@@ -202,9 +197,13 @@ void fish_update(void)
 			fish[i].tx -= dx;
 
                 if((!fish[i].rev && fish[i].tx < (- fish[i].w - fish[i].travel)) ||
-                   (fish[i].rev && fish[i].tx > (aquarium->h + fish[i].travel + fish[i].w))) {
+                   (fish[i].rev && fish[i].tx > (aquarium->w + fish[i].travel + fish[i].w))) {
                         fish[i].rev = !fish[i].rev;
                         fish[i].y = random() % aquarium->h;
+
+                        if(fish[i].speed_mul == 2.5)
+                                fish[i].speed_mul = 0.0;
+
                 }
 
                 j = random() % 16;
@@ -228,7 +227,7 @@ void fish_update(void)
                             (int)fish[i].tx, fish[i].y,
                             (bool)imlib_image_has_alpha());
 
-                fish[i].delay += fish[i].animation->speed[fish[i].frame] * fish[i].fast_frame_change;
+                fish[i].delay += fish[i].animation->speed[fish[i].frame];
 
                 if (fish[i].delay >= (7 * fish[i].animation->speed[fish[i].frame])) {
                         if (fish[i].frame >= (fish[i].animation->frames - 1))
@@ -240,3 +239,25 @@ void fish_update(void)
         }
 }
 
+void fish_enter(void)
+{
+        int i;
+
+        for (i = 0; i < num_fish; i++){
+
+                /* completely off the screen, don't bother showing their escape */
+                if ( ((int)fish[i].tx > aquarium->w) ||
+                     ((int)fish[i].tx < -(fish[i].w)))
+                        fish[i].speed_mul = 0.0;
+                else
+                        fish[i].speed_mul = 2.5;
+        }
+
+}
+
+void fish_leave(void)
+{
+        int i;
+        for (i = 0; i < num_fish; i++)
+                fish[i].speed_mul = 1.0;
+}

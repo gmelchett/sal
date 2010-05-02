@@ -285,7 +285,7 @@ int window_create(void)
         cm             = DefaultColormap(window.display, DefaultScreen(window.display));
         visual         = DefaultVisual(window.display,   DefaultScreen(window.display));
 	window.gc      = DefaultGC(window.display,       DefaultScreen(window.display));
-
+        window.aquarium->display = window.display;
 
 
         window.win = XCreateSimpleWindow(window.display,

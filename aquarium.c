@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <X11/Xlib.h>
 
 #include "config.h"
 #include "sal.h"
@@ -248,7 +248,7 @@ static void parse_options(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-
+        XEvent event;
         parse_options(argc, argv);
 
         srand(time(NULL));
@@ -260,12 +260,26 @@ int main(int argc, char **argv)
         window_create();
 
         for(;;) {
+
+                while(XPending(aquarium.display)) {
+                        XNextEvent(aquarium.display, &event);
+                        switch(event.type) {
+                        case EnterNotify:
+                                fish_enter();
+                                break;
+                        case LeaveNotify:
+                                fish_leave();
+                                break;
+                        default:
+                                break;
+                        }
+                }
                 background_update();
                 fish_update();
                 bubble_update();
                 window_update();
                 /* Not really fps, but close enough */
-                usleep(1000000/aquarium.fps);
+                usleep(1000000 / aquarium.fps);
         }
 
         window_close();

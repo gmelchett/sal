@@ -2,7 +2,7 @@
 #ifndef AQUARIUM_H
 #define AQUARIUM_H
 
-#include <stdbool.h>
+#include <X11/Xlib.h>
 #include "background.h"
 
 struct aquarium
@@ -18,6 +18,7 @@ struct aquarium
         int no_bottom_animals;
         int background_type;
         int fps;
+        Display *display;
 };
 
 struct aquarium *aquarium_get(void);
