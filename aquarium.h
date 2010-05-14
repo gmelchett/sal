@@ -16,6 +16,8 @@
 #define ALV_BOTTOM (1 << 5)
 #define ALV (ALV_TOP|ALV_CENTER|ALV_BOTTOM)
 
+#define AL_NO -1
+
 struct aquarium
 {
         int w, h;
@@ -28,7 +30,7 @@ struct aquarium
         int no_bottom;
         int no_bottom_animals;
         int background_type;
-        int termometer_location;
+        int termometer;
         int fps;
         int leds[LEDS];
         Display *display;

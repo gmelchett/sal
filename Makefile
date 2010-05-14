@@ -4,7 +4,7 @@ LDFLAGS= `imlib2-config --libs` -lX11 -lXext
 
 all: sal
 
-sal: bubble.o image.o aquarium.o background.o window.o fish.o leds.o
+sal: bubble.o image.o aquarium.o background.o window.o fish.o leds.o thermometer.o cpuload_linux.o
 	$(CC) $(LDFLAGS) $^ -o $@
 clean:
 	rm -f sal *.o
@@ -16,4 +16,6 @@ image.o: image.c image.h config.h sal.h
 window.o: window.c window.h sal.h config.h aquarium.h
 fish.o: fish.c fish.h image.h sal.h config.h aquarium.h window.h
 leds.o: leds.c leds.h image.h sal.h config.h window.h aquarium.h
+thermometer.o: thermometer.c thermometer.h image.h sal.h config.h window.h aquarium.h cpuload.h
+cpuload_linux.o: cpuload_linux.c cpuload.h
 

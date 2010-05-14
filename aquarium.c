@@ -16,6 +16,7 @@
 #include "window.h"
 #include "fish.h"
 #include "leds.h"
+#include "thermometer.h"
 
 static struct aquarium aquarium;
 
@@ -151,7 +152,7 @@ static struct aquarium_option a_opts[] = {
                 .data     = &aquarium.background_type,
                 .std      = BACKGROUND_SHADE,
                 .min      = 0,
-                .max      = BACKGROUND_TYPE_END,
+                .max      = BACKGROUND_TYPE_END+1,
         },
         /* Random fish max */
         {
@@ -217,7 +218,7 @@ static struct aquarium_option a_opts[] = {
         {
                 .name     = "-te",
                 .has_arg  = true,
-                .data     = &aquarium.termometer_location,
+                .data     = &aquarium.termometer,
                 .std      = -1,
                 .func_alt = aquarium_location,
         },
@@ -357,6 +358,7 @@ int main(int argc, char **argv)
         background_init();
         fish_init();
         leds_init();
+        thermometer_init();
 
         window_create();
 
@@ -379,6 +381,7 @@ int main(int argc, char **argv)
                 fish_update();
                 bubble_update();
                 leds_update();
+                thermometer_update();
                 window_update();
                 /* Not really fps, but close enough */
                 usleep(1000000 / aquarium.fps);
