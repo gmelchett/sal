@@ -15,6 +15,7 @@
 #include "background.h"
 #include "window.h"
 #include "fish.h"
+#include "leds.h"
 
 static struct aquarium aquarium;
 
@@ -40,18 +41,79 @@ struct aquarium_option {
         bool has_arg;
         int *data;
         int std;
-        void (*func_alt)(char *opt);
+        int (*func_alt)(int *data, char *opt);
         int min;
         int max;
 };
 
 
-static void show_help(char *opt)
+static int show_help(int *data, char *opt)
 {
         printf("Show help\n");
         exit(0);
+        return 0;
 }
 
+static int aquarium_location(int *data, char *opt)
+{
+        if (strlen(opt) != 3)
+                return 1;
+
+        if (opt[1] != 'x')
+                return 1;
+
+        if (opt[2] != 't' && opt[2] != 'c' && opt[2] != 'b')
+                return 1;
+
+        switch(opt[0]) {
+        case 'l': { *data = ALH_LEFT;   break;}
+        case 'c': { *data = ALH_CENTER; break;}
+        case 'r': { *data = ALH_RIGHT;  break;}
+        default: { return 1; }
+        }
+
+        switch(opt[2]) {
+        case 't': { *data |= ALV_TOP;    break;}
+        case 'c': { *data |= ALV_CENTER; break;}
+        case 'b': { *data |= ALV_BOTTOM; break;}
+        default: { return 1; }
+        }
+
+        return 0;
+}
+
+void aquarium_transform(int loc, int w, int h, int *x, int *y)
+{
+
+        switch(loc & ALH) {
+        case ALH_LEFT:
+                (*x) = 1;
+                break;
+        case ALH_CENTER:
+                (*x) = aquarium.w / 2 - w / 2;
+                break;
+        case ALH_RIGHT:
+                (*x) = aquarium.w - w - 1;
+                break;
+        default:
+                break;
+        }
+
+        switch(loc & ALV) {
+        case ALV_TOP:
+                (*y) = 1;
+                break;
+        case ALV_CENTER:
+                (*y) = aquarium.h / 2 - h / 2;
+                break;
+        case ALV_BOTTOM:
+                (*y) = aquarium.h - h - 1;
+                break;
+        default:
+                break;
+        }
+
+}
 
 static struct aquarium_option a_opts[] = {
         /* Window width */
@@ -151,10 +213,44 @@ static struct aquarium_option a_opts[] = {
                 .max      = 200,
         },
 
+        /* Termometer */
+        {
+                .name     = "-te",
+                .has_arg  = true,
+                .data     = &aquarium.termometer_location,
+                .std      = -1,
+                .func_alt = aquarium_location,
+        },
+
+        /* Leds - numlock */
+        {
+                .name     = "-nl",
+                .has_arg  = true,
+                .data     = &aquarium.leds[LEDS_NUMLOCK],
+                .std      = -1,
+                .func_alt = aquarium_location,
+        },
+        /* Leds - capslock */
+        {
+                .name     = "-cl",
+                .has_arg  = true,
+                .data     = &aquarium.leds[LEDS_CAPSLOCK],
+                .std      = -1,
+                .func_alt = aquarium_location,
+        },
+        /* Leds - scrollock */
+        {
+                .name     = "-sl",
+                .has_arg  = true,
+                .data     = &aquarium.leds[LEDS_SCROLLOCK],
+                .std      = -1,
+                .func_alt = aquarium_location,
+        },
+
 
         /* Help text */
         {
-                .name     = "-help",
+                .name     = "--help",
                 .func_alt = show_help,
         },
 
@@ -224,7 +320,10 @@ static void parse_options(int argc, char **argv)
                                                 if (a_opts[j].data != NULL)
                                                         *a_opts[j].data = val;
                                         } else {
-                                                a_opts[j].func_alt(argv[i+1]);
+                                                if(a_opts[j].func_alt(a_opts[j].data, argv[i+1])) {
+                                                        printf("Invalid argument\n");
+                                                        exit(-1);
+                                                }
                                         }
                                         i++;
 
@@ -257,6 +356,8 @@ int main(int argc, char **argv)
         bubble_init();
         background_init();
         fish_init();
+        leds_init();
+
         window_create();
 
         for(;;) {
@@ -277,6 +378,7 @@ int main(int argc, char **argv)
                 background_update();
                 fish_update();
                 bubble_update();
+                leds_update();
                 window_update();
                 /* Not really fps, but close enough */
                 usleep(1000000 / aquarium.fps);
