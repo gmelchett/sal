@@ -276,7 +276,7 @@ int window_create(void)
         Colormap cm;
         Visual *visual;
         static const char *window_title = "Sherman's Aquarium";
-        XTextProperty name;
+        XSizeHints size_hints;
 
         window.aquarium = aquarium_get();
 
@@ -320,9 +320,15 @@ int window_create(void)
         imlib_context_set_colormap(cm);
         imlib_context_set_drawable(window.win);
 
-        if (XStringListToTextProperty((char **)&window_title, 1, &name) != 0)
-                XSetWMName(window.display, window.win, &name);
+        size_hints.min_width = size_hints.max_width = window.aquarium->window_w;
+        size_hints.min_height = size_hints.max_height = window.aquarium->window_h;
+        size_hints.flags = PMaxSize|PMinSize;
 
+        XSetWMNormalHints(window.display, window.win, &size_hints);
+
+
+        XmbSetWMProperties(window.display, window.win, window_title, window_title,
+                           NULL, 0, NULL, NULL, NULL);
 
         background_set();
 
