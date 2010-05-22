@@ -17,6 +17,7 @@
 #include "fish.h"
 #include "leds.h"
 #include "thermometer.h"
+#include "analog-clock.h"
 
 static struct aquarium aquarium;
 
@@ -145,6 +146,18 @@ static struct aquarium_option a_opts[] = {
                 .name     = "-na",
                 .data     = &aquarium.no_bottom_animals,
         },
+
+        /* Analog clock */
+        {
+                .name     = "-ac",
+                .data     = &aquarium.no_analog_clock,
+        },
+        /* Analog clock - no seconds*/
+        {
+                .name     = "-as",
+                .data     = &aquarium.no_analog_clock_seconds,
+        },
+
         /* Background type */
         {
                 .name     = "-bg",
@@ -359,6 +372,7 @@ int main(int argc, char **argv)
         fish_init();
         leds_init();
         thermometer_init();
+        analog_clock_init();
 
         window_create();
 
@@ -382,6 +396,8 @@ int main(int argc, char **argv)
                 bubble_update();
                 leds_update();
                 thermometer_update();
+                analog_clock_update();
+
                 window_update();
                 /* Not really fps, but close enough */
                 usleep(1000000 / aquarium.fps);

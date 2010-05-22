@@ -31,6 +31,8 @@ struct aquarium
         int no_bottom_animals;
         int background_type;
         int termometer;
+        int no_analog_clock;
+        int no_analog_clock_seconds;
         int fps;
         int leds[LEDS];
         Display *display;
