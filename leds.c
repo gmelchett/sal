@@ -1,7 +1,6 @@
 
 #include <X11/XKBlib.h>
 
-
 #include "sal.h"
 #include "config.h"
 #include "image.h"
@@ -13,15 +12,23 @@ static Imlib_Image led_image;
 
 void leds_init(void)
 {
+        int i;
         aquarium = aquarium_get();
-        led_image = image_load("leds.png");
+
+        for (i = 0; i < LEDS; i++) {
+                if (aquarium->leds[i] != AL_NO) {
+                        led_image = image_load("leds.png");
+                        break;
+                }
+        }
+
 }
 
 static void leds_core(int led, int pressed, int loc, int x_delta)
 {
         int x, y, d;
 
-        if(loc == -1 || !pressed)
+        if(loc == AL_NO || !pressed)
                 return;
 
         aquarium_transform(loc,
@@ -29,7 +36,7 @@ static void leds_core(int led, int pressed, int loc, int x_delta)
                           imlib_image_get_height() / LEDS,
                           &x, &y);
 
-        if ( x > aquarium->w / 2)
+        if (x > aquarium->w / 2)
                 d = -x_delta * imlib_image_get_width();
         else
                 d = x_delta * imlib_image_get_width();
