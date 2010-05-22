@@ -179,6 +179,118 @@ void window_draw_blend(unsigned char *source,
 }
 
 
+static void putpixel(int x, int y, float alpha, int linewidth, int colour)
+{
+
+        int dx, dy;
+        int pos, a;
+
+        unsigned char *target = (unsigned char *)window.image->data;
+
+        if(x < 0 || x > window.aquarium->window_w || y < 0 || y > window.aquarium->window_h)
+                return;
+
+        a = (int)(alpha * 256.0 + 0.5);
+
+        for (dx = x; dx < x + linewidth; dx++) {
+                for (dy = y; dy < y + linewidth; dy++) {
+                        pos = dy * window.image->bytes_per_line  + dx * 4;
+
+                        target[pos + 0] = (((colour >> 16) & 0xff) * a + (target[pos + 0]) * (256 - a)) >> 8;
+                        target[pos + 1] = (((colour >>  8) & 0xff) * a + (target[pos + 1]) * (256 - a)) >> 8;
+                        target[pos + 2] = (((colour >>  0) & 0xff) * a + (target[pos + 2]) * (256 - a)) >> 8;
+                }
+        }
+}
+
+/* draw antialiased line from (x1, y1) to (x2, y2), with width linewidth
+ * colour is an int like 0xRRGGBB */
+void window_draw_line(int x1, int y1, int x2, int y2, int linewidth, int colour, int shaded)
+{
+
+        int dx,dy;
+        int error, sign, tmp;
+        float ipix;
+        int step = linewidth;
+
+        dx = abs(x1 - x2);
+        dy = abs(y1 - y2);
+
+        if (dx >= dy) {
+                if (x1 > x2) {
+                        tmp = x1;
+                        x1 = x2;
+                        x2 = tmp;
+                        tmp = y1;
+                        y1 = y2;
+                        y2 = tmp;
+                }
+                error = dx / 2;
+                if (y2 > y1)
+                        sign = step;
+                else
+                        sign = -step;
+
+                putpixel(x1, y1, 1.0, linewidth, colour);
+
+                while (x1 < x2) {
+                        if ((error -= dy) < 0) {
+                                y1 += sign;
+                                error += dx;
+                        }
+                        x1 += step;
+                        ipix = (float) error / dx;
+
+                        if (sign == step)
+                                ipix = 1.0 - ipix;
+
+                        if(shaded){
+                                putpixel(x1, y1 - step, (1.0 - ipix), linewidth, colour);
+                                putpixel(x1, y1 + step, ipix, linewidth, colour);
+                        }
+                        putpixel(x1, y1, 1.0, linewidth, colour);
+
+                }
+                putpixel(x2, y2, 1.0, linewidth, colour);
+        } else {
+                if (y1 > y2) {
+                        tmp = x1;
+                        x1 = x2;
+                        x2 = tmp;
+                        tmp = y1;
+                        y1 = y2;
+                        y2 = tmp;
+                }
+                error = dy / 2;
+
+                if (x2 > x1)
+                        sign = step;
+                else
+                        sign = -step;
+
+                putpixel(x1, y1, 1.0, linewidth, colour);
+
+                while (y1 < y2) {
+                        if ((error -= dx) < 0) {
+                                x1 += sign;
+                                error += dy;
+                        }
+                        y1 += step;
+                        ipix = (float) error / dy;
+
+                        if (sign == step)
+                                ipix = 1.0 - ipix;
+                        if(shaded){
+                                putpixel(x1 - step, y1, (1.0 - ipix), linewidth, colour);
+                                putpixel(x1 + step, y1, ipix, linewidth, colour);
+                        }
+
+                        putpixel(x1, y1, 1.0, linewidth, colour);
+                }
+                putpixel(x2, y2, 1.0, linewidth, colour);
+        }
+}
+
 void window_update(void)
 {
 
