@@ -18,6 +18,10 @@
 
 #define AL_NO -1
 
+#define RED(i) ((i >> 16) & 0xff)
+#define GREEN(i) ((i >> 8) & 0xff)
+#define BLUE(i) ((i >> 0) & 0xff)
+
 struct aquarium
 {
         int w, h;
@@ -33,6 +37,8 @@ struct aquarium
         int termometer;
         int no_analog_clock;
         int no_analog_clock_seconds;
+        int fuzzy_clock;
+        int fuzzy_clock_color;
         int fps;
         int leds[LEDS];
         Display *display;

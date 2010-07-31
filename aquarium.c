@@ -18,6 +18,7 @@
 #include "leds.h"
 #include "thermometer.h"
 #include "analog-clock.h"
+#include "fuzzy-clock.h"
 
 static struct aquarium aquarium;
 
@@ -32,8 +33,6 @@ static void aquarium_init(void)
         aquarium.w = aquarium.window_w - 2 * BORDER_WIDTH;
         aquarium.h = aquarium.window_h - 2 * BORDER_WIDTH;
 }
-
-
 
 /* getopt is ok, but with lots of options it requires too much doublicated code */
 #define MAX_ARG_LEN 20
@@ -83,6 +82,20 @@ static int aquarium_location(int *data, char *opt)
 
         return 0;
 }
+
+static int aquarium_color(int *data, char *opt)
+{
+        int r, g, b, n;
+        n = sscanf(opt, "%d,%d,%d", &r, &g, &b);
+        if (n != 3 || r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+                printf("Bad color. Syntax: r,g,b. where r,g and b are 0 to 255.\n");
+                return 1;
+        }
+
+        *data = r << 16 | g << 8 | b;
+        return 0;
+}
+
 
 void aquarium_transform(int loc, int w, int h, int *x, int *y)
 {
@@ -156,6 +169,22 @@ static struct aquarium_option a_opts[] = {
         {
                 .name     = "-as",
                 .data     = &aquarium.no_analog_clock_seconds,
+        },
+        /* Fuzzy clock */
+        {
+                .name     = "-fu",
+                .has_arg  = true,
+                .data     = &aquarium.fuzzy_clock,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
+        /* Fuzzy clock - color*/
+        {
+                .name     = "-fc",
+                .has_arg  = true,
+                .data     = &aquarium.fuzzy_clock_color,
+                .std      = 0,
+                .func_alt = aquarium_color,
         },
 
         /* Background type */
@@ -232,7 +261,7 @@ static struct aquarium_option a_opts[] = {
                 .name     = "-te",
                 .has_arg  = true,
                 .data     = &aquarium.termometer,
-                .std      = -1,
+                .std      = AL_NO,
                 .func_alt = aquarium_location,
         },
 
@@ -241,7 +270,7 @@ static struct aquarium_option a_opts[] = {
                 .name     = "-nl",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_NUMLOCK],
-                .std      = -1,
+                .std      = AL_NO,
                 .func_alt = aquarium_location,
         },
         /* Leds - capslock */
@@ -249,7 +278,7 @@ static struct aquarium_option a_opts[] = {
                 .name     = "-cl",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_CAPSLOCK],
-                .std      = -1,
+                .std      = AL_NO,
                 .func_alt = aquarium_location,
         },
         /* Leds - scrollock */
@@ -257,7 +286,7 @@ static struct aquarium_option a_opts[] = {
                 .name     = "-sl",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_SCROLLOCK],
-                .std      = -1,
+                .std      = AL_NO,
                 .func_alt = aquarium_location,
         },
 
@@ -325,7 +354,6 @@ static void parse_options(int argc, char **argv)
                                         if (a_opts[j].func_alt == NULL) {
                                                 val = strtol(argv[i + 1], (char **) NULL, 10);
 
-
                                                 if (val < a_opts[j].min || val >= a_opts[j].max) {
                                                         printf("Argument %s options out of range. Got %d min %d, max %d\n",
                                                                a_opts[j].name, val, a_opts[j].min, a_opts[j].max - 1);
@@ -373,6 +401,7 @@ int main(int argc, char **argv)
         leds_init();
         thermometer_init();
         analog_clock_init();
+        fuzzy_clock_init();
 
         window_create();
 
@@ -397,6 +426,7 @@ int main(int argc, char **argv)
                 leds_update();
                 thermometer_update();
                 analog_clock_update();
+                fuzzy_clock_update();
 
                 window_update();
                 /* Not really fps, but close enough */

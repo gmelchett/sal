@@ -53,7 +53,6 @@ static Imlib_Image image_load_core(char *fname, int *sw, int *sh, enum scale sca
 
 }
 
-
 Imlib_Image image_load_random(char *fname, int *sw, int *sh)
 {
         return image_load_core(fname, sw, sh, RANDOM_RESCALE, true, -1);
@@ -66,7 +65,7 @@ Imlib_Image image_load_scale(char *fname, int sw, int sh)
 
 Imlib_Image image_load(char *fname)
 {
-        return image_load_core(fname, NULL, NULL, NO_SCALE, true, -1);
+        return image_load_core(fname, NULL, NULL, NO_SCALE, false, -1);
 }
 
 
@@ -82,4 +81,23 @@ void image_init(char *path)
         strncpy(image_path_loaded, path, MAX_PATH);
         image_path_loaded[MAX_PATH - 1] = '\0';
         image_path = image_path_loaded;
+}
+
+/* Change the colour of an image */
+void image_change_color(Imlib_Image image, int r, int g, int b)
+{
+        int i, alpha;
+        unsigned char *data;
+
+        imlib_context_set_image(image);
+
+        data = (unsigned char *)imlib_image_get_data();
+
+        for(i = 0; i < imlib_image_get_height() * imlib_image_get_width() * 4; i += 4) {
+                alpha = (unsigned int)data[i + 3];
+                data[i + 2]=(unsigned char) ((r * alpha) >> 8);
+                data[i + 1]=(unsigned char) ((g * alpha) >> 8);
+                data[i + 0]=(unsigned char) ((b * alpha) >> 8);
+    }
+
 }
