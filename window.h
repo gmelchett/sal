@@ -17,5 +17,6 @@ void window_draw_line(int x1, int y1, int x2, int y2, int linewidth, int colour,
 void window_update(void);
 void window_close(void);
 int window_create(void);
+bool window_visible(XConfigureRequestEvent e);
 
 #endif

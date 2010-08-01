@@ -425,6 +425,7 @@ static void parse_options(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+        bool visible = true;;
         XEvent event;
         parse_options(argc, argv);
 
@@ -453,20 +454,26 @@ int main(int argc, char **argv)
                         case LeaveNotify:
                                 fish_leave();
                                 break;
+                        case ConfigureNotify:
+                                visible = window_visible(event.xconfigurerequest);
+                                break;
                         default:
                                 break;
                         }
                 }
-                background_update();
-                fish_update();
-                bubble_update();
-                leds_update();
-                thermometer_update();
-                analog_clock_update();
-                fuzzy_clock_update();
-                digital_clock_update();
 
-                window_update();
+                if(visible) {
+                        background_update();
+                        fish_update();
+                        bubble_update();
+                        leds_update();
+                        thermometer_update();
+                        analog_clock_update();
+                        fuzzy_clock_update();
+                        digital_clock_update();
+
+                        window_update();
+                }
                 /* Not really fps, but close enough */
                 usleep(1000000 / aquarium.fps);
         }

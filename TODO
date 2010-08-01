@@ -2,17 +2,25 @@
 
  - Fullscreen, xrandr?
  - blowfish
- - hawthorne
- - bottom dweller bobb
- - tetris, with autosave
- - clock, digital
+ - hawthorne?
+ - bottom dweller bobb?
+ - change color on analog clock hands?
  - date
  - add help text on --help
  - stop updating when window is not shown.
- - hide mouse pointer
+ - diagram, cpuload
+ - applet x-window settings.
+ - Sun rise, sunset
 
 Done:
  - keyboard leds
  - thermometer (cpu-load only)
  - orientation of clock, date, time
  - clock, analog
+ - clock, fuzzy
+ - clock, digital
+ - stop updating when different desktop.
+
+Won't be done:
+ - tetris, with autosave
+ - hide mouse pointer

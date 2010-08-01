@@ -421,8 +421,7 @@ int window_create(void)
 	shmctl(window.shm_img.shmid, IPC_RMID, 0);
 
 	XSelectInput(window.display, window.win,
-                     KeyPressMask | ButtonPressMask |
-                     ExposureMask | ButtonReleaseMask |
+                     StructureNotifyMask |
                      EnterWindowMask | LeaveWindowMask);
 
         imlib_context_set_dither(1);
@@ -450,4 +449,18 @@ int window_create(void)
 	XFlush(window.display);
 
         return 0;
+}
+
+bool window_visible(XConfigureRequestEvent e)
+{
+
+        if (e.x + window.aquarium->window_w < 0 ||
+            e.x > DisplayWidth(window.display, DefaultScreen(window.display)))
+                return false;
+        if (e.y + window.aquarium->window_h < 0 ||
+            e.y > DisplayHeight(window.display, DefaultScreen(window.display)))
+                return false;
+
+        return true;
+
 }
