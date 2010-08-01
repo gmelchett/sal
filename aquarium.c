@@ -19,6 +19,7 @@
 #include "thermometer.h"
 #include "analog-clock.h"
 #include "fuzzy-clock.h"
+#include "digital-clock.h"
 
 static struct aquarium aquarium;
 
@@ -152,22 +153,25 @@ static struct aquarium_option a_opts[] = {
          /* No bottom */
         {
                 .name     = "-nb",
+                .std      = 0,
                 .data     = &aquarium.no_bottom,
         },
          /* No bottom animals */
         {
                 .name     = "-na",
+                .std      = 0,
                 .data     = &aquarium.no_bottom_animals,
         },
-
         /* Analog clock */
         {
                 .name     = "-ac",
+                .std      = 0,
                 .data     = &aquarium.no_analog_clock,
         },
-        /* Analog clock - no seconds*/
+        /* Analog clock - no seconds */
         {
                 .name     = "-as",
+                .std      = 0,
                 .data     = &aquarium.no_analog_clock_seconds,
         },
         /* Fuzzy clock */
@@ -178,13 +182,45 @@ static struct aquarium_option a_opts[] = {
                 .std      = AL_NO,
                 .func_alt = aquarium_location,
         },
-        /* Fuzzy clock - color*/
+        /* Fuzzy clock - color */
         {
                 .name     = "-fc",
                 .has_arg  = true,
                 .data     = &aquarium.fuzzy_clock_color,
                 .std      = 0,
                 .func_alt = aquarium_color,
+        },
+
+        /* Digital clock */
+        {
+                .name     = "-di",
+                .has_arg  = true,
+                .data     = &aquarium.digital_clock,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
+        /* Digital clock - small*/
+        {
+                .name     = "-dm",
+                .has_arg  = true,
+                .data     = &aquarium.digital_clock_small,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
+
+        /* Digital clock - color */
+        {
+                .name     = "-dc",
+                .has_arg  = true,
+                .data     = &aquarium.digital_clock_color,
+                .std      = 0,
+                .func_alt = aquarium_color,
+        },
+        /* Digital clock - seconds */
+        {
+                .name     = "-ds",
+                .data     = &aquarium.digital_clock_seconds,
+                .std      = 0,
         },
 
         /* Background type */
@@ -402,6 +438,7 @@ int main(int argc, char **argv)
         thermometer_init();
         analog_clock_init();
         fuzzy_clock_init();
+        digital_clock_init();
 
         window_create();
 
@@ -427,6 +464,7 @@ int main(int argc, char **argv)
                 thermometer_update();
                 analog_clock_update();
                 fuzzy_clock_update();
+                digital_clock_update();
 
                 window_update();
                 /* Not really fps, but close enough */

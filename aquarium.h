@@ -39,6 +39,10 @@ struct aquarium
         int no_analog_clock_seconds;
         int fuzzy_clock;
         int fuzzy_clock_color;
+        int digital_clock;
+        int digital_clock_small;
+        int digital_clock_color;
+        int digital_clock_seconds;
         int fps;
         int leds[LEDS];
         Display *display;
