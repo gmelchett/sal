@@ -97,6 +97,16 @@ void sun_init(struct aquarium *aquarium)
         figures = image_load("digital-clock/smallfigures.png");
         colon = image_load("digital-clock/smallcolon.png");
 
+        image_change_color(figures,
+                           RED(aquarium->sunriseset_color),
+                           GREEN(aquarium->sunriseset_color),
+                           BLUE(aquarium->sunriseset_color));
+
+        image_change_color(colon,
+                           RED(aquarium->sunriseset_color),
+                           GREEN(aquarium->sunriseset_color),
+                           BLUE(aquarium->sunriseset_color));
+
         imlib_context_set_image(figures);
         tw = 4 * imlib_image_get_width();
         th = 2 * imlib_image_get_height() / 10 + 2;

@@ -10,8 +10,7 @@
  - stop updating when window is not shown.
  - diagram, cpuload
  - applet x-window settings.
- - sunrise sunset set color on font.
- - sunrise delta since yesterday.
+ - sunrise sunset delta since yesterday.
  - Make so that left, right, top, botton does not stack over each other.
 
 Done:
@@ -23,6 +22,7 @@ Done:
  - clock, digital
  - stop updating when different desktop.
  - Sun rise, sunset
+ - sunrise sunset set color on font.
 
 Won't be done:
  - tetris, with autosave

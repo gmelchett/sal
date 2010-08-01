@@ -99,8 +99,10 @@ static int aquarium_double(int *data, char *opt)
         int n;
         n = sscanf(opt, "%f", &f);
 
-        if(n != 1)
+        if(n != 1) {
+                printf("Error: Could not parse argument %s as float\n", opt);
                 return 1;
+        }
 
         *d = (double)f;
 
@@ -344,6 +346,14 @@ static struct aquarium_option a_opts[] = {
                 .data     = &aquarium.sunriseset,
                 .std      = AL_NO,
                 .func_alt = aquarium_location,
+        },
+        /* sun rise and set - color */
+        {
+                .name     = "-so",
+                .has_arg  = true,
+                .data     = &aquarium.sunriseset_color,
+                .std      = 0,
+                .func_alt = aquarium_color,
         },
 
         /* latitude */
