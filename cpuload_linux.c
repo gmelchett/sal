@@ -5,35 +5,44 @@
 #define CPUSMOOTHNESS 30
 /* returns current CPU load in percent, 0 to 100 */
 
+/* See: Documentation/filesystems/proc.txt */
+#define IDLE 3
 int cpuload(void)
 {
     static int firsttimes = 0, current = 0;
     static int cpu_average_list[CPUSMOOTHNESS];
-    static u_int64_t oload = 0, ototal = 0;
+    static long long int oload = 0, ototal = 0;
 
     unsigned int cpuload;
-    u_int64_t load, total;
-    u_int64_t ab, ac, ad, ae;
+    long long int load, total;
+    long long int a[9];
     FILE *stat;
     int i;
+    int n;
 
     stat = fopen("/proc/stat", "r");
-    fscanf(stat, "%*s %Ld %Ld %Ld %Ld", &ab, &ac, &ad, &ae);
+    n = fscanf(stat, "%*s %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld %Ld",
+               &a[0], &a[1], &a[2], &a[3], &a[4],
+               &a[5], &a[6], &a[7], &a[8]);
     fclose(stat);
+
+    if (n != 9) {
+
+            return 0;
+    }
 
     if (firsttimes == 0) {
 	for (i = 0; i < CPUSMOOTHNESS; i++)
 	    cpu_average_list[i] = 0;
     }
-    /* Wait until we have CPUSMOOTHNESS messures */
+    /* Wait until we have CPUSMOOTHNESS measures */
     if (firsttimes != CPUSMOOTHNESS)
 	firsttimes++;
 
-    /* Find out the CPU load */
-    /* user + sys = load
-     * total = total */
-    load = ab + ac + ad;	/* cpu.user + cpu.sys; */
-    total = ab + ac + ad + ae;	/* cpu.total; */
+    for (i = 0; i < 9; i++)
+            total += a[i];
+
+    load = total - a[IDLE];
 
     /* Calculates and average from the last CPUSMOOTHNESS messures */
     if(total != ototal)
