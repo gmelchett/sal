@@ -7,20 +7,18 @@
 #include "aquarium.h"
 #include "cpuload.h"
 
-static struct aquarium *aquarium;
+
 static Imlib_Image thermometer_image;
 
-void thermometer_init(void)
+void thermometer_init(struct aquarium *aquarium)
 {
-        aquarium = aquarium_get();
-
         if (aquarium->termometer == AL_NO)
                 return;
 
         thermometer_image = image_load("thermometer.png");
 }
 
-void thermometer_update(void)
+void thermometer_update(struct aquarium *aquarium)
 {
         int x, y, h;
 

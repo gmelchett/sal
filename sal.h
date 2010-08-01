@@ -18,4 +18,10 @@
 
 #define DEFAULT_WINDOW_SIZE 64
 
+#define LEDS_CAPSLOCK 0
+#define LEDS_NUMLOCK 1
+#define LEDS_SCROLLOCK 2
+#define LEDS 3
+
+
 #endif

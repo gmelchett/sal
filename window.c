@@ -383,14 +383,14 @@ static void background_set(void)
 }
 
 
-int window_create(void)
+int window_create(struct aquarium *aquarium)
 {
         Colormap cm;
         Visual *visual;
         static const char *window_title = "Sherman's Aquarium";
         XSizeHints size_hints;
 
-        window.aquarium = aquarium_get();
+        window.aquarium = aquarium;
 
 	window.display = XOpenDisplay(NULL);
         window.depth   = (DefaultDepth(window.display,   DefaultScreen(window.display))/8) + 1;

@@ -20,10 +20,10 @@ struct bubble {
         struct bubbles *loc;
 };
 
-static struct aquarium *aquarium;
+
 static struct bubble bubble;
 
-static void bubble_random(struct bubbles *b, bool random_y)
+static void bubble_random(struct aquarium *aquarium, struct bubbles *b, bool random_y)
 {
         b->x = (float)(random() % aquarium->w);
         if (random_y)
@@ -36,7 +36,7 @@ static void bubble_random(struct bubbles *b, bool random_y)
 
 
 
-void bubble_update(void)
+void bubble_update(struct aquarium *aquarium)
 {
         int i;
 
@@ -47,7 +47,7 @@ void bubble_update(void)
                 bubble.loc[i].y -= bubble.loc[i].speed;
 
                 if(bubble.loc[i].y < -(imlib_image_get_height() / BUBBLES_FRAMES)) {
-                        bubble_random(&bubble.loc[i], False);
+                        bubble_random(aquarium, &bubble.loc[i], False);
                         continue;
                 }
 
@@ -65,11 +65,9 @@ void bubble_update(void)
 
 
 
-void bubble_init(void)
+void bubble_init(struct aquarium *aquarium)
 {
         int i;
-
-        aquarium = aquarium_get();
 
         bubble.image = image_load("bubbles.png");
 
@@ -85,5 +83,5 @@ void bubble_init(void)
         bubble.h = imlib_image_get_height() / BUBBLES_FRAMES;
 
         for (i = 0; i < bubble.nr; i++)
-                bubble_random(&bubble.loc[i], true);
+                bubble_random(aquarium, &bubble.loc[i], true);
 }

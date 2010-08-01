@@ -14,7 +14,7 @@ int cpuload(void)
     static long long int oload = 0, ototal = 0;
 
     unsigned int cpuload;
-    long long int load, total;
+    long long int load, total = 0;
     long long int a[9];
     FILE *stat;
     int i;
@@ -38,7 +38,6 @@ int cpuload(void)
     /* Wait until we have CPUSMOOTHNESS measures */
     if (firsttimes != CPUSMOOTHNESS)
 	firsttimes++;
-
     for (i = 0; i < 9; i++)
             total += a[i];
 

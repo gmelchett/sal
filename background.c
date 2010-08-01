@@ -11,8 +11,6 @@
 
 #define MAX_LAPS 6
 
-static struct aquarium *aquarium;
-
 struct plant_loc {
         int x, y, w, h;
 };
@@ -47,7 +45,7 @@ static char *bottoms[] = {
         NULL};
 
 
-static void background_create(void)
+static void background_create(struct aquarium *aquarium)
 {
         unsigned char *buff;
 
@@ -87,7 +85,7 @@ static void background_create(void)
 
 
 
-static int bottom_create(void)
+static int bottom_create(struct aquarium *aquarium)
 {
         Imlib_Image bottom;
         int num_b;
@@ -126,7 +124,7 @@ static int bottom_create(void)
         return end_y;
 }
 
-static void bottom_animals_and_plants_create(int sand_height)
+static void bottom_animals_and_plants_create(struct aquarium *aquarium, int sand_height)
 {
         Imlib_Image plant;
         int num_p;
@@ -190,24 +188,22 @@ static void bottom_animals_and_plants_create(int sand_height)
 }
 
 
-void background_init(void)
+void background_init(struct aquarium *aquarium)
 {
         int sand_height;
 
-        aquarium = aquarium_get();
-
-        background_create();
+        background_create(aquarium);
 
         if(!aquarium->no_bottom) {
-                sand_height = bottom_create();
+                sand_height = bottom_create(aquarium);
                 if(sand_height && !aquarium->no_bottom_animals)
-                        bottom_animals_and_plants_create(sand_height);
+                        bottom_animals_and_plants_create(aquarium, sand_height);
         }
 
 }
 
 
-void background_update(void)
+void background_update(struct aquarium *aquarium)
 {
 
         imlib_context_set_image(bg);

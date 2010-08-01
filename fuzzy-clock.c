@@ -39,9 +39,8 @@ static char *fuzzy_image_names[] = {
 };
 
 static Imlib_Image fuzzy_images[FUZZY_IMAGES];
-static struct aquarium *aquarium;
 
-void fuzzy_clock_update(void)
+void fuzzy_clock_update(struct aquarium *aquarium)
 {
         time_t now;
         struct tm *mt;
@@ -134,10 +133,9 @@ void fuzzy_clock_update(void)
         }
 }
 
-void fuzzy_clock_init(void)
+void fuzzy_clock_init(struct aquarium *aquarium)
 {
         int i;
-        aquarium = aquarium_get();
 
         if(aquarium->fuzzy_clock == AL_NO)
                 return;

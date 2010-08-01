@@ -3,8 +3,7 @@
 #define AQUARIUM_H
 
 #include <X11/Xlib.h>
-#include "background.h"
-#include "leds.h"
+#include "sal.h"
 
 
 #define ALH_LEFT   (1 << 0)
@@ -50,9 +49,6 @@ struct aquarium
         Display *display;
 };
 
-struct aquarium *aquarium_get(void);
-
 void aquarium_transform(int loc, int w, int h, int *x, int *y);
-
 
 #endif

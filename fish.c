@@ -117,8 +117,6 @@ struct fish_image
 
 static struct fish_image fish_image[NUMOFFISHTYPES];
 
-struct aquarium *aquarium;
-
 static void load_fish(int type, int scale)
 {
         if(fish_image[type].loaded)
@@ -135,11 +133,9 @@ static void load_fish(int type, int scale)
 
 }
 
-void fish_init(void)
+void fish_init(struct aquarium *aquarium)
 {
         int i;
-
-        aquarium = aquarium_get();
 
         if(aquarium->num_fish > -1)
                 num_fish = aquarium->num_fish;
@@ -183,7 +179,7 @@ void fish_init(void)
 
 }
 
-void fish_update(void)
+void fish_update(struct aquarium *aquarium)
 {
         int i, j;
 	float dx;
@@ -239,7 +235,7 @@ void fish_update(void)
         }
 }
 
-void fish_enter(void)
+void fish_enter(struct aquarium *aquarium)
 {
         int i;
 
@@ -255,7 +251,7 @@ void fish_enter(void)
 
 }
 
-void fish_leave(void)
+void fish_leave(struct aquarium *aquarium)
 {
         int i;
         for (i = 0; i < num_fish; i++)

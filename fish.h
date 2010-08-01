@@ -1,9 +1,11 @@
 #ifndef FISH_H
 #define FISH_H
 
-void fish_update(void);
-void fish_init(void);
-void fish_leave(void);
-void fish_enter(void);
+#include "aquarium.h"
+
+void fish_update(struct aquarium *aquarium);
+void fish_init(struct aquarium *aquarium);
+void fish_leave(struct aquarium *aquarium);
+void fish_enter(struct aquarium *aquarium);
 
 #endif

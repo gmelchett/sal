@@ -7,13 +7,16 @@
 #include "window.h"
 #include "aquarium.h"
 
-static struct aquarium *aquarium;
+#define LEDS_CAPSLOCK 0
+#define LEDS_NUMLOCK 1
+#define LEDS_SCROLLOCK 2
+#define LEDS 3
+
 static Imlib_Image led_image;
 
-void leds_init(void)
+void leds_init(struct aquarium *aquarium)
 {
         int i;
-        aquarium = aquarium_get();
 
         for (i = 0; i < LEDS; i++) {
                 if (aquarium->leds[i] != AL_NO) {
@@ -24,7 +27,7 @@ void leds_init(void)
 
 }
 
-static void leds_core(int led, int pressed, int loc, int x_delta)
+static void leds_core(struct aquarium *aquarium, int led, int pressed, int loc, int x_delta)
 {
         int x, y, d;
 
@@ -49,7 +52,7 @@ static void leds_core(int led, int pressed, int loc, int x_delta)
                           128);
 }
 
-void leds_update(void)
+void leds_update(struct aquarium *aquarium)
 {
         int i, j;
         unsigned int states;
@@ -67,7 +70,7 @@ void leds_update(void)
                         if (aquarium->leds[j] == aquarium->leds[i])
                                 x_delta++;
                 }
-                leds_core(i, (states >> i) & 1, aquarium->leds[i], x_delta);
+                leds_core(aquarium, i, (states >> i) & 1, aquarium->leds[i], x_delta);
         }
 
 }

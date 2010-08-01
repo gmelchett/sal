@@ -24,12 +24,6 @@
 
 static struct aquarium aquarium;
 
-
-struct aquarium *aquarium_get(void)
-{
-        return &aquarium;
-}
-
 static void aquarium_init(void)
 {
         aquarium.w = aquarium.window_w - 2 * BORDER_WIDTH;
@@ -98,8 +92,9 @@ static int aquarium_color(int *data, char *opt)
         return 0;
 }
 
-static int aquarium_double(double *data, char *opt)
+static int aquarium_double(int *data, char *opt)
 {
+        double *d = (double *)data;
         float f;
         int n;
         n = sscanf(opt, "%f", &f);
@@ -107,7 +102,7 @@ static int aquarium_double(double *data, char *opt)
         if(n != 1)
                 return 1;
 
-        *data = (double)f;
+        *d = (double)f;
 
         return 0;
 }
@@ -479,17 +474,16 @@ int main(int argc, char **argv)
         srand(time(NULL));
         aquarium_init();
 
-        bubble_init();
-        background_init();
-        fish_init();
-        leds_init();
-        thermometer_init();
-        analog_clock_init();
-        fuzzy_clock_init();
-        digital_clock_init();
+        bubble_init(&aquarium);
+        background_init(&aquarium);
+        fish_init(&aquarium);
+        leds_init(&aquarium);
+        thermometer_init(&aquarium);
+        fuzzy_clock_init(&aquarium);
+        digital_clock_init(&aquarium);
         sun_init(&aquarium);
 
-        window_create();
+        window_create(&aquarium);
 
         for(;;) {
 
@@ -497,10 +491,10 @@ int main(int argc, char **argv)
                         XNextEvent(aquarium.display, &event);
                         switch(event.type) {
                         case EnterNotify:
-                                fish_enter();
+                                fish_enter(&aquarium);
                                 break;
                         case LeaveNotify:
-                                fish_leave();
+                                fish_leave(&aquarium);
                                 break;
                         case ConfigureNotify:
                                 visible = window_visible(event.xconfigurerequest);
@@ -511,14 +505,14 @@ int main(int argc, char **argv)
                 }
 
                 if(visible) {
-                        background_update();
-                        fish_update();
-                        bubble_update();
-                        leds_update();
-                        thermometer_update();
-                        analog_clock_update();
-                        fuzzy_clock_update();
-                        digital_clock_update();
+                        background_update(&aquarium);
+                        fish_update(&aquarium);
+                        bubble_update(&aquarium);
+                        leds_update(&aquarium);
+                        thermometer_update(&aquarium);
+                        analog_clock_update(&aquarium);
+                        fuzzy_clock_update(&aquarium);
+                        digital_clock_update(&aquarium);
                         sun_update(&aquarium);
 
                         window_update();

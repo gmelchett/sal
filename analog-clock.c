@@ -7,8 +7,6 @@
 #include <math.h>
 #include <time.h>
 
-static struct aquarium *aquarium;
-
 #define HOUR_ARM_LEN 0.58
 #define MIN_ARM_LEN  0.74
 #define SEC_ARM_LEN  0.9
@@ -17,18 +15,13 @@ static struct aquarium *aquarium;
 #define MIN_COLOR  ((23  << 16) | (223 << 8) |   4)
 #define SEC_COLOR  ((255 << 16) | (0   << 8) | 255)
 
-void analog_clock_init(void)
-{
-        aquarium = aquarium_get();
-}
-
 static void analog_clock_loc(int t1, int t2, float t_max, float lx, float ly, int *dx, int *dy)
 {
         (*dx) = (int)(lx * cos(2 * M_PI * ((float)t1 + (float)t2 / 60.0) / t_max - M_PI/2));
 	(*dy) = (int)(ly * sin(2 * M_PI * ((float)t1 + (float)t2 / 60.0) / t_max - M_PI/2));
 }
 
-void analog_clock_update(void)
+void analog_clock_update(struct aquarium *aquarium)
 {
         int dhx, dhy;
         int dmx, dmy;

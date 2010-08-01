@@ -1,7 +1,8 @@
 #ifndef ANALOG_CLOCK_H
 #define ANALOG_CLOCK_H
 
-void analog_clock_init(void);
-void analog_clock_update(void);
+#include "aquarium.h"
+
+void analog_clock_update(struct aquarium *aquarium);
 
 #endif

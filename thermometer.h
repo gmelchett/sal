@@ -1,7 +1,9 @@
 #ifndef THERMOMETER_H
 #define THERMOMETER_H
 
-void thermometer_init(void);
-void thermometer_update(void);
+#include "aquarium.h"
+
+void thermometer_init(struct aquarium *aquarium);
+void thermometer_update(struct aquarium *aquarium);
 
 #endif

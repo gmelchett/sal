@@ -9,10 +9,9 @@
 #include "aquarium.h"
 
 static Imlib_Image figures, colon;
-static struct aquarium *aquarium;
 static int dc_x, dc_y;
 
-void digital_clock_update(void)
+void digital_clock_update(struct aquarium *aquarium)
 {
         time_t now;
         struct tm *mt;
@@ -65,10 +64,10 @@ void digital_clock_update(void)
         }
 }
 
-void digital_clock_init(void)
+void digital_clock_init(struct aquarium *aquarium)
 {
         int total_width;
-        aquarium = aquarium_get();
+
 
         if(aquarium->digital_clock != AL_NO && aquarium->digital_clock_small != AL_NO) {
                 printf("Error: You can't have both a small and a large digital clock at the same time.\n");
