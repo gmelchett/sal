@@ -20,6 +20,7 @@
 #include "analog-clock.h"
 #include "fuzzy-clock.h"
 #include "digital-clock.h"
+#include "sun.h"
 
 static struct aquarium aquarium;
 
@@ -96,6 +97,21 @@ static int aquarium_color(int *data, char *opt)
         *data = r << 16 | g << 8 | b;
         return 0;
 }
+
+static int aquarium_double(double *data, char *opt)
+{
+        float f;
+        int n;
+        n = sscanf(opt, "%f", &f);
+
+        if(n != 1)
+                return 1;
+
+        *data = (double)f;
+
+        return 0;
+}
+
 
 
 void aquarium_transform(int loc, int w, int h, int *x, int *y)
@@ -326,6 +342,33 @@ static struct aquarium_option a_opts[] = {
                 .func_alt = aquarium_location,
         },
 
+        /* sun rise and set */
+        {
+                .name     = "-ss",
+                .has_arg  = true,
+                .data     = &aquarium.sunriseset,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
+
+        /* latitude */
+        {
+                .name     = "-lat",
+                .has_arg  = true,
+                .data     = (int *)&aquarium.lat,
+                .std      = 0,
+                .func_alt = aquarium_double,
+        },
+        /* longitude */
+        {
+                .name     = "-lon",
+                .has_arg  = true,
+                .data     = (int *)&aquarium.lon,
+                .std      = 0,
+                .func_alt = aquarium_double,
+        },
+
+
 
         /* Help text */
         {
@@ -363,6 +406,10 @@ static void parse_options(int argc, char **argv)
                         *a_opts[a_opts_len].data = a_opts[a_opts_len].std;
         }
 
+
+        /* Default: Malmoe, Sweden */
+        aquarium.lat = 55.35;
+        aquarium.lon = 13.02;
 
 #if 1
         {
@@ -440,6 +487,7 @@ int main(int argc, char **argv)
         analog_clock_init();
         fuzzy_clock_init();
         digital_clock_init();
+        sun_init(&aquarium);
 
         window_create();
 
@@ -471,6 +519,7 @@ int main(int argc, char **argv)
                         analog_clock_update();
                         fuzzy_clock_update();
                         digital_clock_update();
+                        sun_update(&aquarium);
 
                         window_update();
                 }
