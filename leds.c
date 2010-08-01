@@ -7,11 +7,6 @@
 #include "window.h"
 #include "aquarium.h"
 
-#define LEDS_CAPSLOCK 0
-#define LEDS_NUMLOCK 1
-#define LEDS_SCROLLOCK 2
-#define LEDS 3
-
 static Imlib_Image led_image;
 
 void leds_init(struct aquarium *aquarium)
