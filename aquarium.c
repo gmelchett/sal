@@ -24,11 +24,6 @@
 
 static struct aquarium aquarium;
 
-static void aquarium_init(void)
-{
-        aquarium.w = aquarium.window_w - 2 * BORDER_WIDTH;
-        aquarium.h = aquarium.window_h - 2 * BORDER_WIDTH;
-}
 
 /* getopt is ok, but with lots of options it requires too much doublicated code */
 #define MAX_ARG_LEN 20
@@ -43,6 +38,14 @@ struct aquarium_option {
         int max;
 };
 
+static int aquarium_loc_usage[3][3][2];
+
+static void aquarium_init(void)
+{
+        memset(aquarium_loc_usage, 0, sizeof(aquarium_loc_usage));
+        aquarium.w = aquarium.window_w - 2 * BORDER_WIDTH;
+        aquarium.h = aquarium.window_h - 2 * BORDER_WIDTH;
+}
 
 static int show_help(int *data, char *opt)
 {
@@ -53,6 +56,7 @@ static int show_help(int *data, char *opt)
 
 static int aquarium_location(int *data, char *opt)
 {
+        int x, y;
         if (strlen(opt) != 3)
                 return 1;
 
@@ -63,16 +67,16 @@ static int aquarium_location(int *data, char *opt)
                 return 1;
 
         switch(opt[0]) {
-        case 'l': { *data = ALH_LEFT;   break;}
-        case 'c': { *data = ALH_CENTER; break;}
-        case 'r': { *data = ALH_RIGHT;  break;}
+        case 'l': { *data = ALH_LEFT;   x = 0; break;}
+        case 'c': { *data = ALH_CENTER; x = 1; break;}
+        case 'r': { *data = ALH_RIGHT;  x = 2; break;}
         default: { return 1; }
         }
 
         switch(opt[2]) {
-        case 't': { *data |= ALV_TOP;    break;}
-        case 'c': { *data |= ALV_CENTER; break;}
-        case 'b': { *data |= ALV_BOTTOM; break;}
+        case 't': { *data |= ALV_TOP;    y = 0; break;}
+        case 'c': { *data |= ALV_CENTER; y = 1; break;}
+        case 'b': { *data |= ALV_BOTTOM; y = 2; break;}
         default: { return 1; }
         }
 
@@ -109,20 +113,29 @@ static int aquarium_double(int *data, char *opt)
         return 0;
 }
 
-
-
 void aquarium_transform(int loc, int w, int h, int *x, int *y)
 {
+        int dw, dh;
+        int nw = w, nh = h;
+
+        dw = aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][0];
+        dh = aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][1];
 
         switch(loc & ALH) {
         case ALH_LEFT:
-                (*x) = 1;
+                (*x) = 1 + dw;
                 break;
         case ALH_CENTER:
-                (*x) = aquarium.w / 2 - w / 2;
+                if (dw) {
+                        (*x) = dw;
+                        nw = dw + w;
+                } else {
+                        (*x) = aquarium.w/2 - w/2;
+                        nw = aquarium.w/2 + w/2;
+                }
                 break;
         case ALH_RIGHT:
-                (*x) = aquarium.w - w - 1;
+                (*x) = aquarium.w - w - dw - 1;
                 break;
         default:
                 break;
@@ -130,18 +143,40 @@ void aquarium_transform(int loc, int w, int h, int *x, int *y)
 
         switch(loc & ALV) {
         case ALV_TOP:
-                (*y) = 1;
+                (*y) = 1 + dh;
                 break;
         case ALV_CENTER:
-                (*y) = aquarium.h / 2 - h / 2;
+                if (dh) {
+                        (*y) = dh;
+                        nh = dh + h;
+                } else {
+                        (*y) = aquarium.h/2 - h/2;
+                        nh = aquarium.h/2 + h/2;
+                }
                 break;
         case ALV_BOTTOM:
-                (*y) = aquarium.h - h - 1;
+                (*y) = aquarium.h - h - dh - 1;
                 break;
         default:
                 break;
         }
 
+
+        if ((loc & ALH) != ALH_CENTER && (loc & ALV) == ALV_CENTER) {
+                aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][0] += nw + 1;
+                return;
+        }
+
+        if ((loc & ALV) != ALV_CENTER && (loc & ALH) == ALH_CENTER) {
+                aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][1] += nh + 1;
+                return;
+        }
+
+        /* laying down */
+        if (aquarium.window_w > aquarium.window_h)
+                aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][0] += nw + 1;
+        else
+                aquarium_loc_usage[loc & ALH][(loc & ALV) >> ALV_SHIFT][1] += nh + 1;
 }
 
 static struct aquarium_option a_opts[] = {
@@ -515,6 +550,7 @@ int main(int argc, char **argv)
                 }
 
                 if(visible) {
+                        memset(aquarium_loc_usage, 0, sizeof(aquarium_loc_usage));
                         background_update(&aquarium);
                         fish_update(&aquarium);
                         bubble_update(&aquarium);

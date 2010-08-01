@@ -6,14 +6,15 @@
 #include "sal.h"
 
 
-#define ALH_LEFT   (1 << 0)
-#define ALH_CENTER (1 << 1)
-#define ALH_RIGHT  (1 << 2)
-#define ALH (ALH_LEFT|ALH_CENTER|ALH_RIGHT)
-#define ALV_TOP    (1 << 3)
-#define ALV_CENTER (1 << 4)
-#define ALV_BOTTOM (1 << 5)
-#define ALV (ALV_TOP|ALV_CENTER|ALV_BOTTOM)
+#define ALH_LEFT   1
+#define ALH_CENTER 2
+#define ALH_RIGHT  3
+#define ALH (0x3)
+#define ALV_SHIFT 3
+#define ALV_TOP    (1 << ALV_SHIFT)
+#define ALV_CENTER (2 << ALV_SHIFT)
+#define ALV_BOTTOM (3 << ALV_SHIFT)
+#define ALV (0x3 << ALV_SHIFT)
 
 #define AL_NO -1
 
