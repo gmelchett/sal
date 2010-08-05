@@ -7,7 +7,7 @@
 #include "window.h"
 #include "aquarium.h"
 
-static Imlib_Image figures, months, weekdays;
+static Imlib_Image figures, months;
 
 void date_update(struct aquarium *aquarium)
 {
@@ -65,17 +65,12 @@ void date_init(struct aquarium *aquarium)
 
         figures = image_load("date/figures.png");
         months = image_load("date/months.png");
-        weekdays = image_load("date/weekdays.png");
 
         image_change_color(figures,
                            RED(aquarium->date_color),
                            GREEN(aquarium->date_color),
                            BLUE(aquarium->date_color));
         image_change_color(months,
-                           RED(aquarium->date_color),
-                           GREEN(aquarium->date_color),
-                           BLUE(aquarium->date_color));
-        image_change_color(weekdays,
                            RED(aquarium->date_color),
                            GREEN(aquarium->date_color),
                            BLUE(aquarium->date_color));
