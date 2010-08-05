@@ -1,18 +1,21 @@
 
 
  - Fullscreen, xrandr?
- - blowfish
- - hawthorne?
- - bottom dweller bobb?
+ - blowfish & swordfish
+ - prey & hunter
+ - Hawthorne?
+ - bottom dweller Bob?
  - change color on analog clock hands?
- - date
  - add help text on --help
  - stop updating when window is not shown.
  - diagram, cpuload
  - applet x-window settings.
  - sunrise sunset delta since yesterday.
+ - man page
+ - configure script (imlib2-dev, x-dev)
 
 Done:
+ - date
  - keyboard leds
  - thermometer (cpu-load only)
  - orientation of clock, date, time

@@ -45,6 +45,8 @@ struct aquarium
         int digital_clock_seconds;
         int sunriseset;
         int sunriseset_color;
+        int date;
+        int date_color;
         double lat, lon;
         int fps;
         int leds[LEDS];

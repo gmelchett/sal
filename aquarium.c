@@ -21,6 +21,7 @@
 #include "fuzzy-clock.h"
 #include "digital-clock.h"
 #include "sun.h"
+#include "date.h"
 
 static struct aquarium aquarium;
 
@@ -270,6 +271,25 @@ static struct aquarium_option a_opts[] = {
                 .data     = &aquarium.digital_clock_seconds,
                 .std      = 0,
         },
+
+        /* Date */
+        {
+                .name     = "-da",
+                .has_arg  = true,
+                .data     = &aquarium.date,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
+
+        /* Date - color */
+        {
+                .name     = "-tc",
+                .has_arg  = true,
+                .data     = &aquarium.date_color,
+                .std      = 0,
+                .func_alt = aquarium_color,
+        },
+
 
         /* Background type */
         {
@@ -527,6 +547,7 @@ int main(int argc, char **argv)
         fuzzy_clock_init(&aquarium);
         digital_clock_init(&aquarium);
         sun_init(&aquarium);
+        date_init(&aquarium);
 
         window_create(&aquarium);
 
@@ -560,6 +581,7 @@ int main(int argc, char **argv)
                         fuzzy_clock_update(&aquarium);
                         digital_clock_update(&aquarium);
                         sun_update(&aquarium);
+                        date_update(&aquarium);
 
                         window_update();
                 }
