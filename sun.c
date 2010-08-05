@@ -55,29 +55,29 @@ void sun_update(struct aquarium *aquarium)
 
                         imlib_context_set_image(figures);
 
-                        window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                          0, (t[i][j] / 10) * imlib_image_get_height() / 10,
-                                          imlib_image_get_width(),
-                                          imlib_image_get_height() / 10,
-                                          x, y,
-                                          128);
+                        window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                                    0, (t[i][j] / 10) * imlib_image_get_height() / 10,
+                                    imlib_image_get_width(),
+                                    imlib_image_get_height() / 10,
+                                    x, y,
+                                    true);
                         x += imlib_image_get_width();
 
-                        window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                          0, (t[i][j] % 10) * imlib_image_get_height() / 10,
-                                          imlib_image_get_width(),
-                                          imlib_image_get_height() / 10,
-                                          x, y,
-                                          128);
+                        window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                                    0, (t[i][j] % 10) * imlib_image_get_height() / 10,
+                                    imlib_image_get_width(),
+                                    imlib_image_get_height() / 10,
+                                    x, y,
+                                    true);
                         x += imlib_image_get_width();
                         imlib_context_set_image(colon);
                         if (!j) {
-                                window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                                  0, 0,
-                                                  imlib_image_get_width(),
-                                                  imlib_image_get_height(),
-                                                  x, y,
-                                                  128);
+                                window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                                            0, 0,
+                                            imlib_image_get_width(),
+                                            imlib_image_get_height(),
+                                            x, y,
+                                            true);
                                 x += imlib_image_get_width();
                         }
                 }
