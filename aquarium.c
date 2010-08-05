@@ -360,6 +360,17 @@ static struct aquarium_option a_opts[] = {
                 .max      = 200,
         },
 
+        /* Restart after X hours */
+        {
+                .name     = "-rs",
+                .has_arg  = true,
+                .data     = &aquarium.restart_h,
+                .std      = 48,
+                .min      = 1,
+                .max      = 500, /* overflow risk otherwise */
+        },
+
+
         /* Termometer */
         {
                 .name     = "-te",
@@ -427,6 +438,7 @@ static struct aquarium_option a_opts[] = {
                 .std      = 0,
                 .func_alt = aquarium_double,
         },
+
 
 
 
@@ -534,6 +546,9 @@ int main(int argc, char **argv)
 {
         bool visible = true;;
         XEvent event;
+        pid_t pid;
+        unsigned int restart_count;
+
         parse_options(argc, argv);
 
         srand(time(NULL));
@@ -551,7 +566,9 @@ int main(int argc, char **argv)
 
         window_create(&aquarium);
 
-        for(;;) {
+        restart_count = aquarium.restart_h * 60 * 60 * aquarium.fps;
+
+        while(restart_count) {
 
                 while(XPending(aquarium.display)) {
                         XNextEvent(aquarium.display, &event);
@@ -587,9 +604,14 @@ int main(int argc, char **argv)
                 }
                 /* Not really fps, but close enough */
                 usleep(1000000 / aquarium.fps);
+                restart_count--;
         }
 
         window_close();
+
+        pid = fork();
+        if(!pid)
+                execvp(argv[0], argv);
 
         return 0;
 }

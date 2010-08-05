@@ -13,6 +13,7 @@
  - man page
  - configure script (imlib2-dev, x-dev)
 
+
 Done:
  - date
  - keyboard leds
@@ -26,6 +27,7 @@ Done:
  - sunrise sunset set color on font.
  - sunrise sunset delta since yesterday.
  - Make so that left, right, top, botton does not stack over each other.
+ - restart after certain time.
 
 Won't be done:
  - tetris, with autosave
