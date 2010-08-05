@@ -10,7 +10,6 @@
  - stop updating when window is not shown.
  - diagram, cpuload
  - applet x-window settings.
- - sunrise sunset delta since yesterday.
  - man page
  - configure script (imlib2-dev, x-dev)
 
@@ -25,6 +24,7 @@ Done:
  - stop updating when different desktop.
  - Sun rise, sunset
  - sunrise sunset set color on font.
+ - sunrise sunset delta since yesterday.
  - Make so that left, right, top, botton does not stack over each other.
 
 Won't be done:
