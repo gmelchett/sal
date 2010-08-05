@@ -426,6 +426,7 @@ int window_create(struct aquarium *aquarium)
 
         imlib_context_set_dither(1);
         imlib_set_cache_size(2048 * 1024);
+        imlib_set_font_cache_size(0);
         imlib_context_set_display(window.display);
         imlib_context_set_visual(visual);
         imlib_context_set_colormap(cm);
