@@ -35,30 +35,30 @@ void digital_clock_update(struct aquarium *aquarium)
 
                 imlib_context_set_image(figures);
 
-                window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                  0, (t[i] / 10) * imlib_image_get_height() / 10,
-                                  imlib_image_get_width(),
-                                  imlib_image_get_height() / 10,
-                                  x, dc_y,
-                                  128);
+                window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                            0, (t[i] / 10) * imlib_image_get_height() / 10,
+                            imlib_image_get_width(),
+                            imlib_image_get_height() / 10,
+                            x, dc_y,
+                            true);
                 x += imlib_image_get_width();
 
-                window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                  0, (t[i] % 10) * imlib_image_get_height() / 10,
-                                  imlib_image_get_width(),
-                                  imlib_image_get_height() / 10,
-                                  x, dc_y,
-                                  128);
+                window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                            0, (t[i] % 10) * imlib_image_get_height() / 10,
+                            imlib_image_get_width(),
+                            imlib_image_get_height() / 10,
+                            x, dc_y,
+                            true);
                 x += imlib_image_get_width();
 
                 if (i + 1 != l) {
                         imlib_context_set_image(colon);
-                        window_draw_blend((unsigned char *)imlib_image_get_data_for_reading_only(),
-                                          0, 0,
-                                          imlib_image_get_width(),
-                                          imlib_image_get_height(),
-                                          x, dc_y,
-                                          128);
+                        window_draw((unsigned char *)imlib_image_get_data_for_reading_only(),
+                                    0, 0,
+                                    imlib_image_get_width(),
+                                    imlib_image_get_height(),
+                                    x, dc_y,
+                                    true);
                         x += imlib_image_get_width();
                 }
         }
