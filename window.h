@@ -19,5 +19,6 @@ void window_update(void);
 void window_close(void);
 int window_create(struct aquarium *aquarium);
 bool window_visible(XConfigureRequestEvent e);
+void window_putpixel(int x, int y, int r, int g, int b, int a);
 
 #endif

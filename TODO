@@ -8,13 +8,13 @@
  - change color on analog clock hands?
  - add help text on --help
  - stop updating when window is not shown.
- - diagram, cpuload
  - applet x-window settings.
  - man page
  - configure script (imlib2-dev, x-dev)
 
 
 Done:
+ - diagram, cpuload
  - date
  - keyboard leds
  - thermometer (cpu-load only)

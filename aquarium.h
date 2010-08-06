@@ -48,6 +48,9 @@ struct aquarium
         int date;
         int date_color;
         int restart_h;
+        int diagram;
+        int diagram_color_bottom;
+        int diagram_color_top;
         double lat, lon;
         int fps;
         int leds[LEDS];

@@ -3,4 +3,7 @@
 
 int cpuload(void);
 
+void cpuload_init(void);
+void cpuload_update(void);
+
 #endif

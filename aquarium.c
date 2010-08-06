@@ -22,6 +22,8 @@
 #include "digital-clock.h"
 #include "sun.h"
 #include "date.h"
+#include "diagram.h"
+#include "cpuload.h"
 
 static struct aquarium aquarium;
 
@@ -328,7 +330,32 @@ static struct aquarium_option a_opts[] = {
                 .max      = 400,
         },
 
+        /* Diagram */
+        {
+                .name     = "-ia",
+                .has_arg  = true,
+                .data     = &aquarium.diagram,
+                .std      = AL_NO,
+                .func_alt = aquarium_location,
+        },
 
+        /* Diagram - bottom color */
+        {
+                .name     = "-ib",
+                .has_arg  = true,
+                .data     = &aquarium.diagram_color_bottom,
+                .std      = 0xa03020,
+                .func_alt = aquarium_color,
+        },
+
+        /* Diagram - top color */
+        {
+                .name     = "-it",
+                .has_arg  = true,
+                .data     = &aquarium.diagram_color_top,
+                .std      = 0xffff00,
+                .func_alt = aquarium_color,
+        },
 
         /* Random bubble max */
         {
@@ -553,6 +580,7 @@ int main(int argc, char **argv)
 
         srand(time(NULL));
         aquarium_init();
+        cpuload_init();
 
         bubble_init(&aquarium);
         background_init(&aquarium);
@@ -563,6 +591,7 @@ int main(int argc, char **argv)
         digital_clock_init(&aquarium);
         sun_init(&aquarium);
         date_init(&aquarium);
+        diagram_init(&aquarium);
 
         window_create(&aquarium);
 
@@ -589,6 +618,7 @@ int main(int argc, char **argv)
 
                 if(visible) {
                         memset(aquarium_loc_usage, 0, sizeof(aquarium_loc_usage));
+                        cpuload_update();
                         background_update(&aquarium);
                         fish_update(&aquarium);
                         bubble_update(&aquarium);
@@ -599,6 +629,7 @@ int main(int argc, char **argv)
                         digital_clock_update(&aquarium);
                         sun_update(&aquarium);
                         date_update(&aquarium);
+                        diagram_update(&aquarium);
 
                         window_update();
                 }

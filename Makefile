@@ -6,7 +6,7 @@ all: sal
 
 sal: bubble.o image.o aquarium.o background.o window.o fish.o leds.o \
 	thermometer.o cpuload_linux.o analog-clock.o fuzzy-clock.o \
-	digital-clock.o sun.o suncalc.o date.o
+	digital-clock.o sun.o suncalc.o date.o diagram.o
 	$(CC) $(LDFLAGS) $^ -o $@
 clean:
 	rm -f sal *.o *~
@@ -28,5 +28,6 @@ digital-clock.o: digital-clock.c digital-clock.h sal.h config.h window.h aquariu
 suncalc.o: suncalc.c suncalc.h
 sun.o: sun.c sun.h suncalc.h sal.h config.h window.h aquarium.h
 date.o: date.c date.h sal.h config.h window.h aquarium.h
+diagram.o: diagram.c diagram.h sal.h config.h window.h aquarium.h cpuload.h
 
 

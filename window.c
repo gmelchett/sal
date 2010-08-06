@@ -178,6 +178,21 @@ void window_draw_blend(unsigned char *source,
         }
 }
 
+void window_putpixel(int x, int y, int r, int g, int b, int a)
+{
+        int pos;
+        unsigned char *target = (unsigned char *)window.image->data;
+
+        if(x < 0 || x > window.aquarium->window_w || y < 0 || y > window.aquarium->window_h)
+                return;
+
+        pos = y * window.image->bytes_per_line  + x * 4;
+
+        target[pos + 0] = (b * a + (target[pos + 0]) * (256 - a)) >> 8;
+        target[pos + 1] = (g * a + (target[pos + 1]) * (256 - a)) >> 8;
+        target[pos + 2] = (r * a + (target[pos + 2]) * (256 - a)) >> 8;
+
+}
 
 static void putpixel(int x, int y, float alpha, int linewidth, int colour)
 {

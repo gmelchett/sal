@@ -1,19 +1,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define CPUSMOOTHNESS 30
-/* returns current CPU load in percent, 0 to 100 */
+#define CPUSMOOTHNESS 5
+
 
 /* See: Documentation/filesystems/proc.txt */
 #define IDLE 3
-int cpuload(void)
-{
-    static int firsttimes = 0, current = 0;
-    static int cpu_average_list[CPUSMOOTHNESS];
-    static long long int oload = 0, ototal = 0;
 
-    unsigned int cpuload;
+static int cpu_average_list[CPUSMOOTHNESS];
+static int current_load = 0;
+
+void cpuload_update(void)
+{
+
+    static long long int oload = 0, ototal = 0;
     long long int load, total = 0;
     long long int a[9];
     FILE *stat;
@@ -26,43 +28,51 @@ int cpuload(void)
                &a[5], &a[6], &a[7], &a[8]);
     fclose(stat);
 
-    if (n != 9) {
+    if (n != 9)
+            return;
 
-            return 0;
-    }
-
-    if (firsttimes == 0) {
-	for (i = 0; i < CPUSMOOTHNESS; i++)
-	    cpu_average_list[i] = 0;
-    }
-    /* Wait until we have CPUSMOOTHNESS measures */
-    if (firsttimes != CPUSMOOTHNESS)
-	firsttimes++;
     for (i = 0; i < 9; i++)
             total += a[i];
 
     load = total - a[IDLE];
 
-    /* Calculates and average from the last CPUSMOOTHNESS messures */
     if(total != ototal)
-	cpu_average_list[current] = (100 * (load - oload)) / (total - ototal);
+	current_load = (100 * (load - oload)) / (total - ototal);
     else
-	cpu_average_list[current] = (load - oload);
+	current_load = (load - oload);
+
+    oload = load;
+    ototal = total;
+}
+
+/* returns current CPU load in percent, 0 to 100 */
+int cpuload(void)
+{
+    static int firsttimes = 0, current = 0;
+    unsigned int load = 0;
+    int i;
+
+    /* Wait until we have CPUSMOOTHNESS measures */
+    if (firsttimes != CPUSMOOTHNESS)
+	firsttimes++;
+
+    cpu_average_list[current] = current_load;
+    /* Calculates and average from the last CPUSMOOTHNESS messures */
 
     current++;
     if (current == CPUSMOOTHNESS)
 	current = 0;
 
-    oload = load;
-    ototal = total;
-
     if (firsttimes != CPUSMOOTHNESS)
 	return 0;
 
-    cpuload = 0;
-
     for (i = 0; i < CPUSMOOTHNESS; i++)
-	cpuload += cpu_average_list[i];
+	load += cpu_average_list[i];
 
-    return (cpuload / CPUSMOOTHNESS);
+    return (load / CPUSMOOTHNESS);
+}
+
+void cpuload_init(void)
+{
+        memset(cpu_average_list, 0, sizeof(int) * CPUSMOOTHNESS);
 }
