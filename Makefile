@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= `imlib2-config --cflags` -Wall -O2 -c -I.
+CFLAGS= `imlib2-config --cflags` -Wall -O2 -c -I. -DVERSION="\"0.1\""
 LDFLAGS= `imlib2-config --libs` -lX11 -lXext -lm
 
 all: sal

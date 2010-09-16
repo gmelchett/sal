@@ -41,6 +41,7 @@ struct aquarium_option {
         int max;
         char help[200];
 };
+
 static struct aquarium_option a_opts[];
 static int aquarium_loc_usage[3][3][2];
 
@@ -54,10 +55,13 @@ static void aquarium_init(void)
 static int show_help(int *data, char *opt)
 {
         int i;
-        printf("Sherman's aquarium - light\n");
+        printf("\nSherman's aquarium - light v%s\n\n", VERSION);
 
         for (i = 0; strnlen(a_opts[i].name, MAX_ARG_LEN) != 0; i++) {
-                printf("\t%s\t%s\n", a_opts[i].name, a_opts[i].help);
+                if (a_opts[i].has_arg)
+                        printf("\t%s <val>\t%s\n", a_opts[i].name, a_opts[i].help);
+                else
+                        printf("\t%s\t\t%s\n", a_opts[i].name, a_opts[i].help);
         }
 
         exit(0);
@@ -193,7 +197,7 @@ static struct aquarium_option a_opts[] = {
         /* Window width */
         {
                 .name     = "-wi",
-                .help     = "help text.",
+                .help     = "Window witdh.",
                 .has_arg  = true,
                 .data     = &aquarium.window_w,
                 .std      = DEFAULT_WINDOW_SIZE,
@@ -203,7 +207,7 @@ static struct aquarium_option a_opts[] = {
         /* Window height */
         {
                 .name     = "-he",
-                .help     = "help text.",
+                .help     = "Window height.",
                 .has_arg  = true,
                 .data     = &aquarium.window_h,
                 .std      = DEFAULT_WINDOW_SIZE,
@@ -213,35 +217,35 @@ static struct aquarium_option a_opts[] = {
          /* No bottom */
         {
                 .name     = "-nb",
-                .help     = "help text.",
+                .help     = "Remove sea floor.",
                 .std      = 0,
                 .data     = &aquarium.no_bottom,
         },
          /* No bottom animals */
         {
                 .name     = "-na",
-                .help     = "help text.",
+                .help     = "No bottom animals.",
                 .std      = 0,
                 .data     = &aquarium.no_bottom_animals,
         },
         /* Analog clock */
         {
                 .name     = "-ac",
-                .help     = "help text.",
+                .help     = "No analog clock.",
                 .std      = 0,
                 .data     = &aquarium.no_analog_clock,
         },
         /* Analog clock - no seconds */
         {
                 .name     = "-as",
-                .help     = "help text.",
+                .help     = "Analog clock, no second arm.",
                 .std      = 0,
                 .data     = &aquarium.no_analog_clock_seconds,
         },
         /* Fuzzy clock */
         {
                 .name     = "-fu",
-                .help     = "help text.",
+                .help     = "Fuzzy clock.",
                 .has_arg  = true,
                 .data     = &aquarium.fuzzy_clock,
                 .std      = AL_NO,
@@ -250,7 +254,7 @@ static struct aquarium_option a_opts[] = {
         /* Fuzzy clock - color */
         {
                 .name     = "-fc",
-                .help     = "help text.",
+                .help     = "Fuzzy clock color.",
                 .has_arg  = true,
                 .data     = &aquarium.fuzzy_clock_color,
                 .std      = 0,
@@ -260,7 +264,7 @@ static struct aquarium_option a_opts[] = {
         /* Digital clock */
         {
                 .name     = "-di",
-                .help     = "help text.",
+                .help     = "Digital clock.",
                 .has_arg  = true,
                 .data     = &aquarium.digital_clock,
                 .std      = AL_NO,
@@ -269,7 +273,7 @@ static struct aquarium_option a_opts[] = {
         /* Digital clock - small*/
         {
                 .name     = "-dm",
-                .help     = "help text.",
+                .help     = "Small digital clock",
                 .has_arg  = true,
                 .data     = &aquarium.digital_clock_small,
                 .std      = AL_NO,
@@ -279,7 +283,7 @@ static struct aquarium_option a_opts[] = {
         /* Digital clock - color */
         {
                 .name     = "-dc",
-                .help     = "help text.",
+                .help     = "Digital clock color. Also for small digital clock.",
                 .has_arg  = true,
                 .data     = &aquarium.digital_clock_color,
                 .std      = 0,
@@ -288,7 +292,7 @@ static struct aquarium_option a_opts[] = {
         /* Digital clock - seconds */
         {
                 .name     = "-ds",
-                .help     = "help text.",
+                .help     = "Show seconds (Digital clock). ",
                 .data     = &aquarium.digital_clock_seconds,
                 .std      = 0,
         },
@@ -296,7 +300,7 @@ static struct aquarium_option a_opts[] = {
         /* Date */
         {
                 .name     = "-da",
-                .help     = "help text.",
+                .help     = "Show date.",
                 .has_arg  = true,
                 .data     = &aquarium.date,
                 .std      = AL_NO,
@@ -306,7 +310,7 @@ static struct aquarium_option a_opts[] = {
         /* Date - color */
         {
                 .name     = "-tc",
-                .help     = "help text.",
+                .help     = "Date color",
                 .has_arg  = true,
                 .data     = &aquarium.date_color,
                 .std      = 0,
@@ -316,7 +320,7 @@ static struct aquarium_option a_opts[] = {
         /* Background type */
         {
                 .name     = "-bg",
-                .help     = "help text.",
+                .help     = "Background type.",
                 .has_arg  = true,
                 .data     = &aquarium.background_type,
                 .std      = BACKGROUND_SHADE,
@@ -326,7 +330,7 @@ static struct aquarium_option a_opts[] = {
         /* Random fish max */
         {
                 .name     = "-rf",
-                .help     = "help text.",
+                .help     = "Max random of fish.",
                 .has_arg  = true,
                 .data     = &aquarium.random_fish,
                 .std      = 15,
@@ -336,7 +340,7 @@ static struct aquarium_option a_opts[] = {
         /* Fixed fish max */
         {
                 .name     = "-nf",
-                .help     = "help text.",
+                .help     = "Max fixed population.",
                 .has_arg  = true,
                 .data     = &aquarium.num_fish,
                 .std      = -1,
@@ -346,7 +350,7 @@ static struct aquarium_option a_opts[] = {
         /* Fish scale */
         {
                 .name     = "-sc",
-                .help     = "help text.",
+                .help     = "Fish scale. (50 - 400).",
                 .has_arg  = true,
                 .data     = &aquarium.fish_scale,
                 .std      = 50,
@@ -357,7 +361,7 @@ static struct aquarium_option a_opts[] = {
         /* Diagram */
         {
                 .name     = "-ia",
-                .help     = "help text.",
+                .help     = "CPU load diagram.",
                 .has_arg  = true,
                 .data     = &aquarium.diagram,
                 .std      = AL_NO,
@@ -367,7 +371,7 @@ static struct aquarium_option a_opts[] = {
         /* Diagram - bottom color */
         {
                 .name     = "-ib",
-                .help     = "help text.",
+                .help     = "Diagram bottom color.",
                 .has_arg  = true,
                 .data     = &aquarium.diagram_color_bottom,
                 .std      = 0xa03020,
@@ -377,7 +381,7 @@ static struct aquarium_option a_opts[] = {
         /* Diagram - top color */
         {
                 .name     = "-it",
-                .help     = "help text.",
+                .help     = "Diagram top color.",
                 .has_arg  = true,
                 .data     = &aquarium.diagram_color_top,
                 .std      = 0xffff00,
@@ -387,7 +391,7 @@ static struct aquarium_option a_opts[] = {
         /* Random bubble max */
         {
                 .name     = "-ru",
-                .help     = "help text.",
+                .help     = "Random max number of bubbles.",
                 .has_arg  = true,
                 .data     = &aquarium.random_bubbles,
                 .std      = 15,
@@ -397,7 +401,7 @@ static struct aquarium_option a_opts[] = {
         /* Fixed bubble max */
         {
                 .name     = "-nu",
-                .help     = "help text.",
+                .help     = "Fixed number of bubbles.",
                 .has_arg  = true,
                 .data     = &aquarium.num_bubbles,
                 .std      = -1,
@@ -405,11 +409,10 @@ static struct aquarium_option a_opts[] = {
                 .max      = 1000,
         },
 
-
         /* Frames per second */
         {
                 .name     = "-fps",
-                .help     = "help text.",
+                .help     = "Frames per second (sort of).",
                 .has_arg  = true,
                 .data     = &aquarium.fps,
                 .std      = 20,
@@ -420,7 +423,7 @@ static struct aquarium_option a_opts[] = {
         /* Restart after X hours */
         {
                 .name     = "-rs",
-                .help     = "help text.",
+                .help     = "Restart each <val> hour. For variation.",
                 .has_arg  = true,
                 .data     = &aquarium.restart_h,
                 .std      = 48,
@@ -432,7 +435,7 @@ static struct aquarium_option a_opts[] = {
         /* Termometer */
         {
                 .name     = "-te",
-                .help     = "help text.",
+                .help     = "Show thermometer (CPU load).",
                 .has_arg  = true,
                 .data     = &aquarium.termometer,
                 .std      = AL_NO,
@@ -442,7 +445,7 @@ static struct aquarium_option a_opts[] = {
         /* Leds - numlock */
         {
                 .name     = "-nl",
-                .help     = "help text.",
+                .help     = "Show numlock led.",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_NUMLOCK],
                 .std      = AL_NO,
@@ -451,7 +454,7 @@ static struct aquarium_option a_opts[] = {
         /* Leds - capslock */
         {
                 .name     = "-cl",
-                .help     = "help text.",
+                .help     = "Show capslock led.",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_CAPSLOCK],
                 .std      = AL_NO,
@@ -460,7 +463,7 @@ static struct aquarium_option a_opts[] = {
         /* Leds - scrollock */
         {
                 .name     = "-sl",
-                .help     = "help text.",
+                .help     = "Show scrollock led.",
                 .has_arg  = true,
                 .data     = &aquarium.leds[LEDS_SCROLLOCK],
                 .std      = AL_NO,
@@ -470,7 +473,7 @@ static struct aquarium_option a_opts[] = {
         /* sun rise and set */
         {
                 .name     = "-ss",
-                .help     = "help text.",
+                .help     = "Show sun rise and sun set.",
                 .has_arg  = true,
                 .data     = &aquarium.sunriseset,
                 .std      = AL_NO,
@@ -479,7 +482,7 @@ static struct aquarium_option a_opts[] = {
         /* sun rise and set - color */
         {
                 .name     = "-so",
-                .help     = "help text.",
+                .help     = "Text color of sun rise and sun set.",
                 .has_arg  = true,
                 .data     = &aquarium.sunriseset_color,
                 .std      = 0,
@@ -489,7 +492,7 @@ static struct aquarium_option a_opts[] = {
         /* latitude */
         {
                 .name     = "-lat",
-                .help     = "help text.",
+                .help     = "Latitude for sun rise and sun set calculations.",
                 .has_arg  = true,
                 .data     = (int *)&aquarium.lat,
                 .std      = 0,
@@ -498,38 +501,35 @@ static struct aquarium_option a_opts[] = {
         /* longitude */
         {
                 .name     = "-lon",
-                .help     = "help text.",
+                .help     = "Longitude for sun rise and sun set calculations.",
                 .has_arg  = true,
                 .data     = (int *)&aquarium.lon,
                 .std      = 0,
                 .func_alt = aquarium_double,
         },
 
-
-
-
         /* Help text */
         {
                 .name     = "--help",
-                .help     = "help text.",
+                .help     = "Shows help text.",
                 .func_alt = show_help,
         },
         /* Help text */
         {
                 .name     = "-help",
-                .help     = "help text.",
+                .help     = "Shows help text.",
                 .func_alt = show_help,
         },
         /* Help text */
         {
                 .name     = "--h",
-                .help     = "help text.",
+                .help     = "Shows help text.",
                 .func_alt = show_help,
         },
         /* Help text */
         {
                 .name     = "-h",
-                .help     = "help text.",
+                .help     = "Shows help text.",
                 .func_alt = show_help,
         },
 
@@ -551,7 +551,6 @@ static struct aquarium_option a_opts[] = {
 #endif
 
 };
-
 
 static void parse_options(int argc, char **argv)
 {
@@ -577,7 +576,6 @@ static void parse_options(int argc, char **argv)
                                                a_opts[i].name, a_opts[j].name, i);
         }
 #endif
-
 
         for (i = 1; i < argc; i++) {
 
@@ -627,7 +625,6 @@ static void parse_options(int argc, char **argv)
         }
 
 }
-
 
 int main(int argc, char **argv)
 {
